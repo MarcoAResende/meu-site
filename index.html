@@ -4,8 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
+  <!-- Google Search Console Verification -->
+  <meta name="google-site-verification" content="fbo-uddacvB2mIU7hJjCIEZPg5w_r8PmP-I8AsDv214" />
+
   <!-- SEO Meta Tags -->
-  <title>Reboque & Guincho 24h | Encontre Socorro Veicular Rápido e Segura</title>
+  <title>Reboque & Guincho 24h | Encontre Socorro Veicular Rápido e Seguro</title>
   <meta name="description" content="Precisa de guincho ou reboque urgente? Conecte-se instantaneamente com caminhoneiros e prestadores de socorro veicular 24h mais próximos da sua localização.">
   <meta name="keywords" content="guincho 24 horas, reboque de carro, socorro veicular, plataforma hidraulica, reboque urgente, caminhão guincho">
   <meta name="robots" content="index, follow">
@@ -19,6 +22,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- PapaParse para leitura segura de CSV do Google Planilhas -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <style>
     .bg-accent { background-color: #facc15; }
@@ -28,28 +33,23 @@
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
 
-  <!-- Header / Navigation -->
+  <!-- Header / Navigation (Apenas Identidade Visual) -->
   <header class="bg-black/90 backdrop-blur border-b border-gray-800 sticky top-0 z-50">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-3">
         <div class="bg-amber-400 p-2 rounded-lg text-black font-black flex items-center gap-2">
           <i data-lucide="truck" class="w-6 h-6"></i>
           <span>REBOQUE24H</span>
         </div>
-        <span class="text-xs font-semibold px-2 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full">
+        <span class="text-xs font-semibold px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full">
           Socorro Rápido
         </span>
       </div>
 
-      <!-- Abas de Alternância -->
-      <nav class="flex space-x-2 bg-gray-800/80 p-1 rounded-xl border border-gray-700">
-        <button id="tab-client" onclick="switchTab('client')" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 bg-amber-400 text-black shadow">
-          <i data-lucide="search" class="w-4 h-4"></i> Buscar Reboque
-        </button>
-        <button id="tab-admin" onclick="switchTab('admin')" class="px-4 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 text-gray-400 hover:text-white">
-          <i data-lucide="shield-check" class="w-4 h-4"></i> Painel Admin
-        </button>
-      </nav>
+      <div class="hidden sm:flex items-center gap-2 text-xs text-gray-400">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Atendimento 24h Online</span>
+      </div>
     </div>
   </header>
 
@@ -68,19 +68,34 @@
             Conecte-se diretamente com motoristas verificados perto de você. Sem intermediários, negociação rápida via WhatsApp.
           </p>
 
-          <!-- Input de Localização -->
+          <!-- Input de Localização com Autocomplete + Botão GPS -->
           <div class="flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-grow">
+            <div class="relative flex-grow" id="search-container">
               <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-3.5 text-gray-400"></i>
-              <input type="text" id="search-input" placeholder="Digite sua cidade ou rodovia (ex: BH, BR-381...)" 
-                     class="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 transition"
-                     onkeyup="filterDrivers()">
+              <input type="text" id="search-input" autocomplete="off"
+                     placeholder="Digite sua cidade ou rodovia (ex: Belo Horizonte, BR-381...)" 
+                     class="w-full pl-10 pr-9 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 transition"
+                     oninput="handleSearchInput()"
+                     onfocus="handleSearchInput()">
+              
+              <!-- Botão limpar busca -->
+              <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-3.5 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+              </button>
+
+              <!-- Lista suspensa de sugestões de cidades -->
+              <ul id="suggestions-list" class="hidden absolute z-40 w-full mt-1 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-800">
+                <!-- Sugestões inseridas via JS -->
+              </ul>
             </div>
-            <button onclick="useGPS()" class="px-5 py-3 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-amber-400 font-medium rounded-xl flex items-center justify-center gap-2 transition whitespace-nowrap">
+
+            <button id="btn-gps" onclick="useGPS()" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-xl flex items-center justify-center gap-2 transition whitespace-nowrap shadow-lg">
               <i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS
             </button>
           </div>
-          <div id="gps-status" class="mt-2 text-xs text-amber-400/90 font-medium hidden"></div>
+          
+          <!-- Mensagem de status do GPS / Busca -->
+          <div id="gps-status" class="mt-3 text-xs font-medium hidden flex items-center gap-1.5"></div>
         </div>
       </div>
 
@@ -106,11 +121,11 @@
 
       <!-- Lista de Motoristas -->
       <div class="space-y-4">
-        <div class="flex justify-between items-center">
-          <h2 class="text-xl font-bold flex items-center gap-2">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <h2 id="list-title" class="text-xl font-bold flex items-center gap-2">
             <i data-lucide="truck" class="w-5 h-5 text-amber-400"></i> Motoristas Disponíveis
           </h2>
-          <span id="driver-count" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-400 border border-gray-700">0 cadastrados</span>
+          <span id="driver-count" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-400 border border-gray-700">Carregando...</span>
         </div>
 
         <div id="drivers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -119,106 +134,21 @@
       </div>
     </section>
 
-    <!-- ================= PAINEL ADMIN (CONTROLE) ================= -->
-    <section id="view-admin" class="space-y-6 hidden">
-      <div class="border-b border-gray-800 pb-4">
-        <h2 class="text-2xl font-bold flex items-center gap-2">
-          <i data-lucide="settings" class="w-6 h-6 text-amber-400"></i> Painel de Controle de Frota
-        </h2>
-        <p class="text-sm text-gray-400">Cadastre novos motoristas ou remova prestadores da plataforma.</p>
-      </div>
-
-      <!-- Formulário de Cadastro -->
-      <div class="bg-gray-800/60 border border-gray-700 p-6 rounded-2xl shadow-lg">
-        <h3 class="text-lg font-bold mb-4 flex items-center gap-2 text-amber-400">
-          <i data-lucide="user-plus" class="w-5 h-5"></i> Cadastrar Novo Motorista
-        </h3>
-
-        <form id="add-driver-form" onsubmit="handleAddDriver(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Nome Completo do Prestador *</label>
-            <input type="text" id="adm-name" required placeholder="Ex: Marcos Silva (Reboque Silva)"
-                   class="w-full p-2.5 bg-gray-900 border border-gray-700 rounded-lg text-sm text-white focus:border-amber-400 focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">WhatsApp (Com DDD) *</label>
-            <input type="text" id="adm-phone" required placeholder="Ex: 31999998888"
-                   class="w-full p-2.5 bg-gray-900 border border-gray-700 rounded-lg text-sm text-white focus:border-amber-400 focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Região de Atendimento / Cidade / Rodovia *</label>
-            <input type="text" id="adm-region" required placeholder="Ex: Belo Horizonte, BR-040 e Região"
-                   class="w-full p-2.5 bg-gray-900 border border-gray-700 rounded-lg text-sm text-white focus:border-amber-400 focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Tipo de Reboque / Veículos Atendidos</label>
-            <input type="text" id="adm-type" placeholder="Ex: Plataforma Hidráulica - Leves e Utilitários"
-                   class="w-full p-2.5 bg-gray-900 border border-gray-700 rounded-lg text-sm text-white focus:border-amber-400 focus:outline-none">
-          </div>
-
-          <div>
-            <label class="block text-xs font-semibold text-gray-300 mb-1">URL da Foto / Avatar (Opcional)</label>
-            <input type="url" id="adm-photo" placeholder="https://exemplo.com/foto.jpg"
-                   class="w-full p-2.5 bg-gray-900 border border-gray-700 rounded-lg text-sm text-white focus:border-amber-400 focus:outline-none">
-          </div>
-
-          <div class="flex items-center space-x-3 pt-4">
-            <input type="checkbox" id="adm-verified" checked class="w-5 h-5 accent-amber-400 rounded cursor-pointer">
-            <label for="adm-verified" class="text-sm font-semibold text-gray-200 cursor-pointer">
-              Conceder Selo de Motorista Verificado
-            </label>
-          </div>
-
-          <div class="md:col-span-2">
-            <label class="block text-xs font-semibold text-gray-300 mb-1">Breve Descrição dos Serviços</label>
-            <textarea id="adm-desc" rows="2" placeholder="Ex: Atendimento rápido 24h em rodovias e zona urbana. Aceito cartão e pix."
-                      class="w-full p-2.5 bg-gray-900 border border-gray-700 rounded-lg text-sm text-white focus:border-amber-400 focus:outline-none"></textarea>
-          </div>
-
-          <div class="md:col-span-2 flex justify-end">
-            <button type="submit" class="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-xl flex items-center gap-2 transition shadow-lg">
-              <i data-lucide="check-circle" class="w-5 h-5"></i> Cadastrar Motorista
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Tabela de Gerenciamento / Exclusão -->
-      <div class="bg-gray-800/40 border border-gray-800 rounded-2xl overflow-hidden">
-        <div class="p-4 border-b border-gray-800">
-          <h3 class="font-bold text-gray-200">Motoristas Ativos no Sistema</h3>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-gray-300">
-            <thead class="bg-gray-900 text-xs text-gray-400 uppercase border-b border-gray-800">
-              <tr>
-                <th class="p-3">Motorista</th>
-                <th class="p-3">Região</th>
-                <th class="p-3">WhatsApp</th>
-                <th class="p-3">Selo</th>
-                <th class="p-3 text-right">Ação</th>
-              </tr>
-            </thead>
-            <tbody id="admin-table-body">
-              <!-- Linhas geradas via JS -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="bg-black border-t border-gray-800 py-6 text-center text-xs text-gray-500 mt-12">
-    <p>© 2026 Plataforma de Reboques 24h - Conectando motoristas e motoristas com segurança.</p>
+    <p>© 2026 Plataforma de Reboques 24h - Conectando motoristas e prestadores de socorro com segurança.</p>
   </footer>
 
   <!-- Lógica da Aplicação -->
   <script>
-    // Dados Iniciais de Exemplo
-    const defaultDrivers = [
+    // =========================================================================
+    // CONFIGURAÇÃO DO GOOGLE PLANILHAS (LINK CSV PUBLICADO)
+    // =========================================================================
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb5VGzR0HEYJmPMknPD3wpMAlb2pSyFbZ5VzsbgBbmhZEmjzwW8r7KMw1xucLkmjf23UkRSp7PipKb/pub?gid=0&single=true&output=csv";
+
+    // Dados de reserva (usados caso haja falha de conexão com a planilha)
+    const fallbackDrivers = [
       {
         id: "1",
         name: "Carlos Guincho 24h",
@@ -227,7 +157,9 @@
         type: "Plataforma Hidráulica - Leves e Suv",
         verified: true,
         desc: "Atendimento ultra rápido na região de BH. Equipamento novo, socorro 24h. Aceito PIX e Cartão.",
-        photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80"
+        photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80",
+        lat: -19.9167,
+        lng: -43.9345
       },
       {
         id: "2",
@@ -237,7 +169,9 @@
         type: "Reboque Asa Delta e Plataforma",
         verified: true,
         desc: "Especialista em pane mecânica e remoções em rodovias. Chegada estimada de 20 a 40 minutos.",
-        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        lat: -19.9321,
+        lng: -44.0539
       },
       {
         id: "3",
@@ -247,39 +181,195 @@
         type: "Veículos Leves e Utilitários",
         verified: false,
         desc: "Socorro veicular rápido com preço justo. Atendimento prévio via WhatsApp.",
-        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
+        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+        lat: -19.9858,
+        lng: -43.8469
       }
     ];
 
-    // Carregar do LocalStorage ou usar o padrão
-    function getDrivers() {
-      const stored = localStorage.getItem('reboque_drivers');
-      return stored ? JSON.parse(stored) : defaultDrivers;
+    // Lista base de cidades e rodovias para sugestões instantâneas (somada às regiões da planilha)
+    const baseLocations = [
+      "Belo Horizonte", "Contagem", "Betim", "Nova Lima", "Sabará",
+      "Ribeirão das Neves", "Santa Luzia", "Ibirité", "Vespasiano",
+      "Lagoa Santa", "Sete Lagoas", "Ouro Preto", "Itabirito",
+      "BR-381", "BR-040", "BR-262", "Anel Rodoviário"
+    ];
+
+    let allDrivers = [];
+    let availableSuggestions = [...baseLocations];
+    let userLocation = null; // { lat, lng }
+
+    // Normalizar texto (remove acentos e deixa minúsculo para facilitar a busca)
+    function normalizeText(text) {
+      if (!text) return "";
+      return text
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
     }
 
-    function saveDrivers(drivers) {
-      localStorage.setItem('reboque_drivers', JSON.stringify(drivers));
-      render();
+    // Cálculo de distância real em KM entre duas coordenadas (Fórmula de Haversine)
+    function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+      if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
+      const R = 6371; // Raio da Terra em km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
     }
 
-    // Alternar Abas
-    function switchTab(tab) {
-      const clientView = document.getElementById('view-client');
-      const adminView = document.getElementById('view-admin');
-      const btnClient = document.getElementById('tab-client');
-      const btnAdmin = document.getElementById('tab-admin');
-
-      if (tab === 'client') {
-        clientView.classList.remove('hidden');
-        adminView.classList.add('hidden');
-        btnClient.className = "px-4 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 bg-amber-400 text-black shadow";
-        btnAdmin.className = "px-4 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 text-gray-400 hover:text-white";
-      } else {
-        clientView.classList.add('hidden');
-        adminView.classList.remove('hidden');
-        btnAdmin.className = "px-4 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 bg-amber-400 text-black shadow";
-        btnClient.className = "px-4 py-1.5 rounded-lg text-sm font-semibold transition flex items-center gap-2 text-gray-400 hover:text-white";
+    // Carregar dados do Google Planilhas ou usar fallback
+    function loadDriversData() {
+      if (!GOOGLE_SHEET_CSV_URL) {
+        allDrivers = fallbackDrivers;
+        buildSuggestionsList();
+        renderClientCards(allDrivers);
+        return;
       }
+
+      Papa.parse(GOOGLE_SHEET_CSV_URL, {
+        download: true,
+        header: true,
+        skipEmptyLines: true,
+        complete: function(results) {
+          if (results.data && results.data.length > 0) {
+            allDrivers = results.data.map((row, index) => ({
+              id: row.id || String(index + 1),
+              name: row.nome || "Motorista Parceiro",
+              phone: row.telefone || "",
+              region: row.regiao || "",
+              type: row.tipo || "Reboque Geral",
+              verified: normalizeText(row.verificado) === "sim",
+              desc: row.descricao || "Disponível para atendimento imediato.",
+              photo: row.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+              lat: parseFloat(String(row.latitude || "").replace(",", ".")),
+              lng: parseFloat(String(row.longitude || "").replace(",", "."))
+            })).filter(d => d.name && d.phone);
+          } else {
+            allDrivers = fallbackDrivers;
+          }
+          buildSuggestionsList();
+          renderClientCards(allDrivers);
+        },
+        error: function(err) {
+          console.error("Erro ao carregar planilha:", err);
+          allDrivers = fallbackDrivers;
+          buildSuggestionsList();
+          renderClientCards(allDrivers);
+        }
+      });
+    }
+
+    // Extrair cidades/rodovias únicas das regiões cadastradas na planilha + lista base
+    function buildSuggestionsList() {
+      const set = new Set(baseLocations);
+      allDrivers.forEach(d => {
+        if (d.region) {
+          // Divide regiões separadas por vírgula, barra ou " e "
+          const parts = d.region.split(/[,\/]|\be\b/i);
+          parts.forEach(p => {
+            const clean = p.trim();
+            if (clean.length > 2) set.add(clean);
+          });
+        }
+      });
+      availableSuggestions = Array.from(set).sort((a, b) => a.localeCompare(b));
+    }
+
+    // Gerenciar digitação e exibir sugestões (Autocomplete)
+    function handleSearchInput() {
+      const input = document.getElementById('search-input');
+      const clearBtn = document.getElementById('clear-search-btn');
+      const suggestionsEl = document.getElementById('suggestions-list');
+      const rawValue = input.value;
+      const query = normalizeText(rawValue);
+
+      if (rawValue.length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+
+      // Filtra sugestões que contenham o trecho digitado (ex: "bel" -> "Belo Horizonte")
+      if (query.length >= 1) {
+        const matches = availableSuggestions.filter(loc => 
+          normalizeText(loc).includes(query)
+        );
+
+        if (matches.length > 0) {
+          suggestionsEl.innerHTML = matches.map(loc => `
+            <li onclick="selectSuggestion('${loc.replace(/'/g, "\'")}')" 
+                class="px-4 py-2.5 text-sm text-gray-200 hover:bg-amber-400 hover:text-black cursor-pointer flex items-center gap-2 transition">
+              <i data-lucide="map-pin" class="w-4 h-4 opacity-70"></i>
+              <span>${loc}</span>
+            </li>
+          `).join('');
+          suggestionsEl.classList.remove('hidden');
+          lucide.createIcons();
+        } else {
+          suggestionsEl.classList.add('hidden');
+        }
+      } else {
+        suggestionsEl.classList.add('hidden');
+      }
+
+      filterDrivers();
+    }
+
+    // Quando o cliente clica em uma sugestão da lista
+    function selectSuggestion(locationName) {
+      const input = document.getElementById('search-input');
+      input.value = locationName;
+      document.getElementById('suggestions-list').classList.add('hidden');
+      document.getElementById('clear-search-btn').classList.remove('hidden');
+      filterDrivers();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('search-input');
+      input.value = "";
+      document.getElementById('suggestions-list').classList.add('hidden');
+      document.getElementById('clear-search-btn').classList.add('hidden');
+      filterDrivers();
+    }
+
+    // Fechar dropdown de sugestões ao clicar fora
+    document.addEventListener('click', (e) => {
+      const container = document.getElementById('search-container');
+      if (container && !container.contains(e.target)) {
+        document.getElementById('suggestions-list').classList.add('hidden');
+      }
+    });
+
+    // Filtrar e ordenar motoristas
+    function filterDrivers() {
+      const query = normalizeText(document.getElementById('search-input').value);
+      
+      let filtered = allDrivers.filter(d => 
+        normalizeText(d.name).includes(query) ||
+        normalizeText(d.region).includes(query) ||
+        normalizeText(d.type).includes(query)
+      );
+
+      // Se o GPS estiver ativo, calcula a distância e ordena do mais próximo ao mais distante
+      if (userLocation) {
+        filtered = filtered.map(d => {
+          const dist = calculateDistanceKm(userLocation.lat, userLocation.lng, d.lat, d.lng);
+          return { ...d, distanceKm: dist };
+        }).sort((a, b) => {
+          if (a.distanceKm === null) return 1;
+          if (b.distanceKm === null) return -1;
+          return a.distanceKm - b.distanceKm;
+        });
+      }
+
+      renderClientCards(filtered);
     }
 
     // Renderizar Cards do Cliente
@@ -292,8 +382,8 @@
         listEl.innerHTML = `
           <div class="col-span-full py-12 text-center text-gray-500 bg-gray-800/20 rounded-2xl border border-gray-800">
             <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-2 text-gray-600"></i>
-            <p class="font-medium">Nenhum guincho encontrado para essa região.</p>
-            <p class="text-xs">Tente buscar por termos mais genéricos como "BH" ou "BR".</p>
+            <p class="font-medium text-gray-300">Nenhum guincho encontrado para essa busca.</p>
+            <p class="text-xs mt-1">Tente limpar o filtro ou clicar em "Usar Meu GPS" para ver os mais próximos.</p>
           </div>
         `;
         lucide.createIcons();
@@ -302,7 +392,8 @@
 
       listEl.innerHTML = drivers.map(d => {
         const cleanPhone = d.phone.replace(/\D/g, '');
-        const message = encodeURIComponent(`Olá ${d.name}, vi seu contato no site de Reboque 24h e preciso de socorro veicular!`);
+        const distText = (typeof d.distanceKm === 'number') ? ` (estou a cerca de ${d.distanceKm.toFixed(1)} km)` : '';
+        const message = encodeURIComponent(`Olá ${d.name}, vi seu contato no site Reboque 24h${distText} e preciso de socorro veicular!`);
         const waLink = `https://wa.me/55${cleanPhone}?text=${message}`;
 
         return `
@@ -310,26 +401,35 @@
             <div>
               <div class="flex items-start justify-between gap-3 mb-3">
                 <div class="flex items-center space-x-3">
-                  <img src="${d.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100'}" 
-                       alt="${d.name}" class="w-12 h-12 rounded-full object-cover border border-amber-400/40">
+                  <img src="${d.photo}" alt="${d.name}" 
+                       onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'"
+                       class="w-12 h-12 rounded-full object-cover border border-amber-400/40 shrink-0">
                   <div>
                     <h3 class="font-bold text-white text-base leading-tight">${d.name}</h3>
                     <p class="text-xs text-amber-400 font-medium flex items-center gap-1 mt-0.5">
-                      <i data-lucide="map-pin" class="w-3 h-3"></i> ${d.region}
+                      <i data-lucide="map-pin" class="w-3 h-3 shrink-0"></i> ${d.region}
                     </p>
                   </div>
                 </div>
               </div>
 
-              ${d.verified ? `
-                <div class="inline-flex items-center gap-1 bg-amber-400/10 text-amber-400 border border-amber-400/30 text-xs px-2.5 py-0.5 rounded-full font-semibold mb-3">
-                  <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Motorista Verificado
-                </div>
-              ` : ''}
+              <div class="flex flex-wrap gap-2 mb-3">
+                ${d.verified ? `
+                  <span class="inline-flex items-center gap-1 bg-amber-400/10 text-amber-400 border border-amber-400/30 text-xs px-2.5 py-0.5 rounded-full font-semibold">
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Verificado
+                  </span>
+                ` : ''}
+
+                ${typeof d.distanceKm === 'number' ? `
+                  <span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-2.5 py-0.5 rounded-full font-semibold">
+                    <i data-lucide="navigation" class="w-3 h-3"></i> A aprox. ${d.distanceKm.toFixed(1)} km
+                  </span>
+                ` : ''}
+              </div>
 
               <div class="space-y-2 text-xs text-gray-300 mb-4">
-                <p><span class="text-gray-400">Equipamento:</span> ${d.type || 'Reboque Geral'}</p>
-                <p class="text-gray-400 line-clamp-2">${d.desc || 'Disponível para atendimento imediato.'}</p>
+                <p><span class="text-gray-400">Equipamento:</span> ${d.type}</p>
+                <p class="text-gray-400 line-clamp-2">${d.desc}</p>
               </div>
             </div>
 
@@ -344,102 +444,81 @@
       lucide.createIcons();
     }
 
-    // Renderizar Tabela Admin
-    function renderAdminTable(drivers) {
-      const tableEl = document.getElementById('admin-table-body');
-      
-      tableEl.innerHTML = drivers.map(d => `
-        <tr class="border-b border-gray-800 hover:bg-gray-800/30">
-          <td class="p-3 font-semibold text-white">${d.name}</td>
-          <td class="p-3 text-xs text-gray-400">${d.region}</td>
-          <td class="p-3 text-xs text-gray-400">${d.phone}</td>
-          <td class="p-3">
-            ${d.verified ? '<span class="text-xs bg-amber-400/20 text-amber-400 px-2 py-0.5 rounded border border-amber-400/30">Sim</span>' : '<span class="text-xs bg-gray-700 text-gray-400 px-2 py-0.5 rounded">Não</span>'}
-          </td>
-          <td class="p-3 text-right">
-            <button onclick="handleDeleteDriver('${d.id}')" class="px-3 py-1 bg-red-600/20 hover:bg-red-600/40 text-red-400 text-xs rounded-lg border border-red-500/30 transition">
-              Descadastrar
-            </button>
-          </td>
-        </tr>
-      `).join('');
-    }
-
-    function render() {
-      const drivers = getDrivers();
-      renderClientCards(drivers);
-      renderAdminTable(drivers);
-    }
-
-    // Filtrar Motoristas pela Busca
-    function filterDrivers() {
-      const query = document.getElementById('search-input').value.toLowerCase();
-      const drivers = getDrivers();
-      const filtered = drivers.filter(d => 
-        d.name.toLowerCase().includes(query) ||
-        d.region.toLowerCase().includes(query) ||
-        d.type.toLowerCase().includes(query)
-      );
-      renderClientCards(filtered);
-    }
-
-    // Adicionar Motorista
-    function handleAddDriver(e) {
-      e.preventDefault();
-      const drivers = getDrivers();
-
-      const newDriver = {
-        id: Date.now().toString(),
-        name: document.getElementById('adm-name').value,
-        phone: document.getElementById('adm-phone').value,
-        region: document.getElementById('adm-region').value,
-        type: document.getElementById('adm-type').value,
-        photo: document.getElementById('adm-photo').value || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100',
-        verified: document.getElementById('adm-verified').checked,
-        desc: document.getElementById('adm-desc').value
-      };
-
-      drivers.unshift(newDriver);
-      saveDrivers(drivers);
-
-      document.getElementById('add-driver-form').reset();
-      alert('Motorista cadastrado com sucesso!');
-      switchTab('client');
-    }
-
-    // Deletar Motorista
-    function handleDeleteDriver(id) {
-      if (confirm('Tem certeza que deseja descadastrar este motorista?')) {
-        const drivers = getDrivers().filter(d => d.id !== id);
-        saveDrivers(drivers);
-      }
-    }
-
-    // Simulação de GPS
+    // GPS Real com Alta Precisão e Tratamento Detalhado de Erros
     function useGPS() {
       const status = document.getElementById('gps-status');
-      status.innerText = "Obtendo sua localização...";
+      const btnGps = document.getElementById('btn-gps');
+      
+      status.className = "mt-3 text-xs font-medium text-amber-400 flex items-center gap-1.5";
+      status.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Buscando sinal de satélite do seu celular...`;
       status.classList.remove('hidden');
+      lucide.createIcons();
 
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            status.innerText = "Localização aproximada obtida! Exibindo motoristas da região.";
-            document.getElementById('search-input').value = "BH";
-            filterDrivers();
-          },
-          (error) => {
-            status.innerText = "Não foi possível obter a localização. Digite manualmente a cidade.";
-          }
-        );
-      } else {
-        status.innerText = "Geolocalização não suportada no seu navegador.";
+      if (!("geolocation" in navigator)) {
+        status.className = "mt-3 text-xs font-medium text-red-400 flex items-center gap-1.5";
+        status.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i> Seu navegador não suporta GPS. Digite sua cidade acima.`;
+        lucide.createIcons();
+        return;
       }
+
+      btnGps.disabled = true;
+      btnGps.classList.add('opacity-70');
+
+      const options = {
+        enableHighAccuracy: true, // Força o uso do chip GPS real do celular
+        timeout: 12000,           // Aguarda até 12 segundos pelo sinal
+        maximumAge: 0             // Não usa localização antiga em cache
+      };
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          btnGps.disabled = false;
+          btnGps.classList.remove('opacity-70');
+
+          userLocation = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+
+          // Limpa filtro de texto para mostrar todos os reboques ordenados por distância
+          document.getElementById('search-input').value = "";
+          document.getElementById('clear-search-btn').classList.add('hidden');
+          document.getElementById('list-title').innerHTML = `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos de Você`;
+
+          status.className = "mt-3 text-xs font-medium text-emerald-400 flex items-center gap-1.5";
+          status.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i> GPS conectado! Mostrando os guinchos ordenados pela menor distância.`;
+          
+          filterDrivers();
+          lucide.createIcons();
+        },
+        (error) => {
+          btnGps.disabled = false;
+          btnGps.classList.remove('opacity-70');
+          status.className = "mt-3 text-xs font-medium text-red-400 flex items-center gap-1.5";
+
+          let errorMsg = "Não foi possível obter sua localização.";
+          switch(error.code) {
+            case error.PERMISSION_DENIED:
+              errorMsg = "Permissão de localização bloqueada no navegador. Libere o acesso nas configurações do site ou digite sua cidade.";
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMsg = "Sinal de GPS indisponível no momento. Digite sua cidade manualmente.";
+              break;
+            case error.TIMEOUT:
+              errorMsg = "O GPS demorou muito para responder. Tente novamente ou digite sua cidade.";
+              break;
+          }
+          status.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i> <span>${errorMsg}</span>`;
+          lucide.createIcons();
+        },
+        options
+      );
     }
 
     // Inicialização
     document.addEventListener('DOMContentLoaded', () => {
-      render();
+      lucide.createIcons();
+      loadDriversData();
     });
   </script>
 </body>
