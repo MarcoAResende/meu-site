@@ -35,7 +35,7 @@ html_content = """<!DOCTYPE html>
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
 
-  <!-- Header / Navigation (Apenas Identidade Visual) -->
+  <!-- Header / Navigation -->
   <header class="bg-black/90 backdrop-blur border-b border-gray-800 sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center space-x-3">
@@ -55,84 +55,94 @@ html_content = """<!DOCTYPE html>
     </div>
   </header>
 
-  <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6">
+  <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
 
-    <!-- ================= VISÃO DO CLIENTE ================= -->
-    <section id="view-client" class="space-y-6">
-      
-      <!-- Hero & Busca -->
-      <div class="bg-gradient-to-br from-gray-800 to-gray-950 border border-gray-800 p-6 md:p-8 rounded-2xl shadow-xl">
-        <div class="max-w-2xl">
-          <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
-            Carro quebrou? Encontre um <span class="text-amber-400">Reboque 24h</span> agora.
-          </h1>
-          <p class="text-gray-400 text-sm md:text-base mb-6">
-            Conecte-se diretamente com motoristas verificados perto de você. Sem intermediários, negociação rápida via WhatsApp.
-          </p>
+    <!-- ================= HERO & BUSCA ================= -->
+    <section class="bg-gradient-to-br from-gray-800 to-gray-950 border border-gray-800 p-6 md:p-8 rounded-2xl shadow-xl">
+      <div class="max-w-3xl">
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
+          Carro quebrou? Encontre um <span class="text-amber-400">Reboque 24h</span> agora.
+        </h1>
+        <p class="text-gray-400 text-sm md:text-base mb-6">
+          Conecte-se diretamente com motoristas verificados perto de você. Sem intermediários, negociação rápida via WhatsApp.
+        </p>
 
-          <!-- Input de Localização com Autocomplete + Botão GPS -->
-          <div class="flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-grow" id="search-container">
-              <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-3.5 text-gray-400"></i>
-              <input type="text" id="search-input" autocomplete="off"
-                     placeholder="Digite sua cidade ou rodovia (ex: Belo Horizonte, BR-381...)" 
-                     class="w-full pl-10 pr-9 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 transition"
-                     oninput="handleSearchInput()"
-                     onfocus="handleSearchInput()">
-              
-              <!-- Botão limpar busca -->
-              <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-3.5 text-gray-400 hover:text-white">
-                <i data-lucide="x" class="w-5 h-5"></i>
-              </button>
-
-              <!-- Lista suspensa de sugestões de cidades -->
-              <ul id="suggestions-list" class="hidden absolute z-40 w-full mt-1 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-800">
-                <!-- Sugestões inseridas via JS -->
-              </ul>
-            </div>
-
-            <button id="btn-gps" onclick="useGPS()" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-xl flex items-center justify-center gap-2 transition whitespace-nowrap shadow-lg">
-              <i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS
+        <!-- Input de Localização com Autocomplete + Botão GPS -->
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <div class="relative flex-grow" id="search-container">
+            <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-3.5 text-gray-400"></i>
+            <input type="text" id="search-input" autocomplete="off"
+                   placeholder="Digite sua cidade ou rodovia (ex: Belo Horizonte, BR-381...)" 
+                   class="w-full pl-10 pr-9 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 transition"
+                   oninput="handleSearchInput()"
+                   onfocus="handleSearchInput()">
+            
+            <!-- Botão limpar busca -->
+            <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-3.5 text-gray-400 hover:text-white">
+              <i data-lucide="x" class="w-5 h-5"></i>
             </button>
+
+            <!-- Lista suspensa de sugestões de cidades -->
+            <ul id="suggestions-list" class="hidden absolute z-40 w-full mt-1 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-800">
+              <!-- Sugestões inseridas via JS -->
+            </ul>
           </div>
-          
-          <!-- Mensagem de status do GPS / Busca -->
-          <div id="gps-status" class="mt-3 text-xs font-medium hidden flex items-center gap-1.5"></div>
+
+          <button id="btn-gps" onclick="useGPS()" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-xl flex items-center justify-center gap-2 transition whitespace-nowrap shadow-lg">
+            <i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS
+          </button>
         </div>
+
+        <!-- Atalhos Rápidos (Opção B - Acesso com 1 clique para rodovias e cidades) -->
+        <div class="flex flex-wrap items-center gap-2 pt-2">
+          <span class="text-xs text-gray-400 font-medium flex items-center gap-1">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Atalhos rápidos:
+          </span>
+          <button onclick="quickFilter('Belo Horizonte')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Belo Horizonte</button>
+          <button onclick="quickFilter('Contagem')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Contagem</button>
+          <button onclick="quickFilter('Betim')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Betim</button>
+          <button onclick="quickFilter('Nova Lima')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Nova Lima</button>
+          <button onclick="quickFilter('BR-381')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-381</button>
+          <button onclick="quickFilter('BR-040')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-040</button>
+          <button onclick="quickFilter('Anel Rodoviário')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">Anel Rodoviário</button>
+        </div>
+        
+        <!-- Mensagem de status do GPS / Busca -->
+        <div id="gps-status" class="mt-3 text-xs font-medium hidden flex items-center gap-1.5"></div>
+      </div>
+    </section>
+
+    <!-- ================= LISTA DE MOTORISTAS (LOGO ABAIXO DA BUSCA) ================= -->
+    <section class="space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-2">
+        <h2 id="list-title" class="text-xl font-bold flex items-center gap-2">
+          <i data-lucide="truck" class="w-5 h-5 text-amber-400"></i> Motoristas Disponíveis
+        </h2>
+        <span id="driver-count" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-400 border border-gray-700">Carregando...</span>
       </div>
 
-      <!-- Indicadores de Qualidade / SEO -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-        <div class="bg-gray-800/40 border border-gray-800 p-3 rounded-xl">
-          <p class="text-xs text-gray-400">Atendimento</p>
-          <p class="font-bold text-amber-400">24 Horas / 7 Dias</p>
-        </div>
-        <div class="bg-gray-800/40 border border-gray-800 p-3 rounded-xl">
-          <p class="text-xs text-gray-400">Contatos Verificados</p>
-          <p class="font-bold text-amber-400">100% Direto</p>
-        </div>
-        <div class="bg-gray-800/40 border border-gray-800 p-3 rounded-xl">
-          <p class="text-xs text-gray-400">Cobertura</p>
-          <p class="font-bold text-amber-400">Cidades & Rodovias</p>
-        </div>
-        <div class="bg-gray-800/40 border border-gray-800 p-3 rounded-xl">
-          <p class="text-xs text-gray-400">Taxa de Resposta</p>
-          <p class="font-bold text-amber-400">Imediata (Zap)</p>
-        </div>
+      <div id="drivers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Cards são renderizados via JS -->
       </div>
+    </section>
 
-      <!-- Lista de Motoristas -->
-      <div class="space-y-4">
-        <div class="flex flex-wrap justify-between items-center gap-2">
-          <h2 id="list-title" class="text-xl font-bold flex items-center gap-2">
-            <i data-lucide="truck" class="w-5 h-5 text-amber-400"></i> Motoristas Disponíveis
-          </h2>
-          <span id="driver-count" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-400 border border-gray-700">Carregando...</span>
-        </div>
-
-        <div id="drivers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <!-- Cards são renderizados via JS -->
-        </div>
+    <!-- ================= INDICADORES DE QUALIDADE / SEO (MOVIDOS PARA O FINAL) ================= -->
+    <section class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center pt-6 border-t border-gray-800">
+      <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+        <p class="text-xs text-gray-400">Atendimento</p>
+        <p class="font-bold text-amber-400 text-sm mt-0.5">24 Horas / 7 Dias</p>
+      </div>
+      <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+        <p class="text-xs text-gray-400">Contatos Verificados</p>
+        <p class="font-bold text-amber-400 text-sm mt-0.5">100% Direto</p>
+      </div>
+      <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+        <p class="text-xs text-gray-400">Cobertura</p>
+        <p class="font-bold text-amber-400 text-sm mt-0.5">Cidades & Rodovias</p>
+      </div>
+      <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+        <p class="text-xs text-gray-400">Taxa de Resposta</p>
+        <p class="font-bold text-amber-400 text-sm mt-0.5">Imediata (Zap)</p>
       </div>
     </section>
 
@@ -144,12 +154,10 @@ html_content = """<!DOCTYPE html>
 
   <!-- Lógica da Aplicação -->
   <script>
-    // =========================================================================
-    // CONFIGURAÇÃO DO GOOGLE PLANILHAS (LINK CSV PUBLICADO)
-    // =========================================================================
+    // Link CSV publicado da sua planilha do Google
     const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb5VGzR0HEYJmPMknPD3wpMAlb2pSyFbZ5VzsbgBbmhZEmjzwW8r7KMw1xucLkmjf23UkRSp7PipKb/pub?gid=0&single=true&output=csv";
 
-    // Dados de reserva (usados caso haja falha de conexão com a planilha)
+    // Dados de reserva
     const fallbackDrivers = [
       {
         id: "1",
@@ -189,7 +197,6 @@ html_content = """<!DOCTYPE html>
       }
     ];
 
-    // Lista base de cidades e rodovias para sugestões instantâneas (somada às regiões da planilha)
     const baseLocations = [
       "Belo Horizonte", "Contagem", "Betim", "Nova Lima", "Sabará",
       "Ribeirão das Neves", "Santa Luzia", "Ibirité", "Vespasiano",
@@ -199,9 +206,8 @@ html_content = """<!DOCTYPE html>
 
     let allDrivers = [];
     let availableSuggestions = [...baseLocations];
-    let userLocation = null; // { lat, lng }
+    let userLocation = null;
 
-    // Normalizar texto (remove acentos e deixa minúsculo para facilitar a busca)
     function normalizeText(text) {
       if (!text) return "";
       return text
@@ -212,10 +218,9 @@ html_content = """<!DOCTYPE html>
         .trim();
     }
 
-    // Cálculo de distância real em KM entre duas coordenadas (Fórmula de Haversine)
     function calculateDistanceKm(lat1, lon1, lat2, lon2) {
       if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
-      const R = 6371; // Raio da Terra em km
+      const R = 6371;
       const dLat = (lat2 - lat1) * Math.PI / 180;
       const dLon = (lon2 - lon1) * Math.PI / 180;
       const a = 
@@ -226,7 +231,6 @@ html_content = """<!DOCTYPE html>
       return R * c;
     }
 
-    // Carregar dados do Google Planilhas ou usar fallback
     function loadDriversData() {
       if (!GOOGLE_SHEET_CSV_URL) {
         allDrivers = fallbackDrivers;
@@ -268,12 +272,10 @@ html_content = """<!DOCTYPE html>
       });
     }
 
-    // Extrair cidades/rodovias únicas das regiões cadastradas na planilha + lista base
     function buildSuggestionsList() {
       const set = new Set(baseLocations);
       allDrivers.forEach(d => {
         if (d.region) {
-          // Divide regiões separadas por vírgula, barra ou " e "
           const parts = d.region.split(/[,\\/]|\\be\\b/i);
           parts.forEach(p => {
             const clean = p.trim();
@@ -284,7 +286,6 @@ html_content = """<!DOCTYPE html>
       availableSuggestions = Array.from(set).sort((a, b) => a.localeCompare(b));
     }
 
-    // Gerenciar digitação e exibir sugestões (Autocomplete)
     function handleSearchInput() {
       const input = document.getElementById('search-input');
       const clearBtn = document.getElementById('clear-search-btn');
@@ -298,7 +299,6 @@ html_content = """<!DOCTYPE html>
         clearBtn.classList.add('hidden');
       }
 
-      // Filtra sugestões que contenham o trecho digitado (ex: "bel" -> "Belo Horizonte")
       if (query.length >= 1) {
         const matches = availableSuggestions.filter(loc => 
           normalizeText(loc).includes(query)
@@ -324,10 +324,17 @@ html_content = """<!DOCTYPE html>
       filterDrivers();
     }
 
-    // Quando o cliente clica em uma sugestão da lista
     function selectSuggestion(locationName) {
       const input = document.getElementById('search-input');
       input.value = locationName;
+      document.getElementById('suggestions-list').classList.add('hidden');
+      document.getElementById('clear-search-btn').classList.remove('hidden');
+      filterDrivers();
+    }
+
+    function quickFilter(term) {
+      const input = document.getElementById('search-input');
+      input.value = term;
       document.getElementById('suggestions-list').classList.add('hidden');
       document.getElementById('clear-search-btn').classList.remove('hidden');
       filterDrivers();
@@ -341,7 +348,6 @@ html_content = """<!DOCTYPE html>
       filterDrivers();
     }
 
-    // Fechar dropdown de sugestões ao clicar fora
     document.addEventListener('click', (e) => {
       const container = document.getElementById('search-container');
       if (container && !container.contains(e.target)) {
@@ -349,7 +355,6 @@ html_content = """<!DOCTYPE html>
       }
     });
 
-    // Filtrar e ordenar motoristas
     function filterDrivers() {
       const query = normalizeText(document.getElementById('search-input').value);
       
@@ -359,7 +364,6 @@ html_content = """<!DOCTYPE html>
         normalizeText(d.type).includes(query)
       );
 
-      // Se o GPS estiver ativo, calcula a distância e ordena do mais próximo ao mais distante
       if (userLocation) {
         filtered = filtered.map(d => {
           const dist = calculateDistanceKm(userLocation.lat, userLocation.lng, d.lat, d.lng);
@@ -374,7 +378,6 @@ html_content = """<!DOCTYPE html>
       renderClientCards(filtered);
     }
 
-    // Renderizar Cards do Cliente
     function renderClientCards(drivers) {
       const listEl = document.getElementById('drivers-list');
       const countEl = document.getElementById('driver-count');
@@ -385,7 +388,7 @@ html_content = """<!DOCTYPE html>
           <div class="col-span-full py-12 text-center text-gray-500 bg-gray-800/20 rounded-2xl border border-gray-800">
             <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-2 text-gray-600"></i>
             <p class="font-medium text-gray-300">Nenhum guincho encontrado para essa busca.</p>
-            <p class="text-xs mt-1">Tente limpar o filtro ou clicar em "Usar Meu GPS" para ver os mais próximos.</p>
+            <p class="text-xs mt-1">Tente limpar o filtro, usar um atalho rápido ou clicar em "Usar Meu GPS".</p>
           </div>
         `;
         lucide.createIcons();
@@ -446,19 +449,19 @@ html_content = """<!DOCTYPE html>
       lucide.createIcons();
     }
 
-    // GPS Real com Alta Precisão e Tratamento Detalhado de Erros
+    // ================= GPS ROBUSTO COM DUPLA TENTATIVA (FALLBACK PARA IPHONES) =================
     function useGPS() {
       const status = document.getElementById('gps-status');
       const btnGps = document.getElementById('btn-gps');
       
       status.className = "mt-3 text-xs font-medium text-amber-400 flex items-center gap-1.5";
-      status.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Buscando sinal de satélite do seu celular...`;
+      status.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Obtendo localização do celular...`;
       status.classList.remove('hidden');
       lucide.createIcons();
 
       if (!("geolocation" in navigator)) {
         status.className = "mt-3 text-xs font-medium text-red-400 flex items-center gap-1.5";
-        status.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i> Seu navegador não suporta GPS. Digite sua cidade acima.`;
+        status.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i> Seu navegador não suporta GPS. Use os atalhos rápidos acima.`;
         lucide.createIcons();
         return;
       }
@@ -466,58 +469,87 @@ html_content = """<!DOCTYPE html>
       btnGps.disabled = true;
       btnGps.classList.add('opacity-70');
 
-      const options = {
-        enableHighAccuracy: true, // Força o uso do chip GPS real do celular
-        timeout: 12000,           // Aguarda até 12 segundos pelo sinal
-        maximumAge: 0             // Não usa localização antiga em cache
+      // 1ª Tentativa: Alta precisão (satélite) com timeout de 8 segundos
+      const highAccuracyOptions = {
+        enableHighAccuracy: true,
+        timeout: 8000,
+        maximumAge: 0
       };
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          btnGps.disabled = false;
-          btnGps.classList.remove('opacity-70');
-
-          userLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-
-          // Limpa filtro de texto para mostrar todos os reboques ordenados por distância
-          document.getElementById('search-input').value = "";
-          document.getElementById('clear-search-btn').classList.add('hidden');
-          document.getElementById('list-title').innerHTML = `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos de Você`;
-
-          status.className = "mt-3 text-xs font-medium text-emerald-400 flex items-center gap-1.5";
-          status.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i> GPS conectado! Mostrando os guinchos ordenados pela menor distância.`;
-          
-          filterDrivers();
-          lucide.createIcons();
+          successGPS(position);
         },
         (error) => {
-          btnGps.disabled = false;
-          btnGps.classList.remove('opacity-70');
-          status.className = "mt-3 text-xs font-medium text-red-400 flex items-center gap-1.5";
+          console.warn("Alta precisão falhou, tentando fallback de baixa precisão...", error);
+          // 2ª Tentativa (Fallback): Baixa precisão (rede/Wi-Fi/torre), ideal para Safari/iPhone com sinal instável
+          const lowAccuracyOptions = {
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 60000
+          };
 
-          let errorMsg = "Não foi possível obter sua localização.";
-          switch(error.code) {
-            case error.PERMISSION_DENIED:
-              errorMsg = "Permissão de localização bloqueada no navegador. Libere o acesso nas configurações do site ou digite sua cidade.";
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMsg = "Sinal de GPS indisponível no momento. Digite sua cidade manualmente.";
-              break;
-            case error.TIMEOUT:
-              errorMsg = "O GPS demorou muito para responder. Tente novamente ou digite sua cidade.";
-              break;
-          }
-          status.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i> <span>${errorMsg}</span>`;
-          lucide.createIcons();
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              successGPS(position);
+            },
+            (finalError) => {
+              failGPS(finalError);
+            },
+            lowAccuracyOptions
+          );
         },
-        options
+        highAccuracyOptions
       );
     }
 
-    // Inicialização
+    function successGPS(position) {
+      const btnGps = document.getElementById('btn-gps');
+      const status = document.getElementById('gps-status');
+
+      btnGps.disabled = false;
+      btnGps.classList.remove('opacity-70');
+
+      userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      document.getElementById('search-input').value = "";
+      document.getElementById('clear-search-btn').classList.add('hidden');
+      document.getElementById('list-title').innerHTML = `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos de Você`;
+
+      status.className = "mt-3 text-xs font-medium text-emerald-400 flex items-center gap-1.5";
+      status.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i> GPS conectado! Guinchos ordenados por proximidade.`;
+      
+      filterDrivers();
+      lucide.createIcons();
+    }
+
+    function failGPS(error) {
+      const btnGps = document.getElementById('btn-gps');
+      const status = document.getElementById('gps-status');
+
+      btnGps.disabled = false;
+      btnGps.classList.remove('opacity-70');
+      status.className = "mt-3 text-xs font-medium text-red-400 flex items-center gap-1.5";
+
+      let errorMsg = "Não foi possível obter sua localização exata.";
+      switch(error.code) {
+        case error.PERMISSION_DENIED:
+          errorMsg = "Permissão de GPS bloqueada no navegador. Toque nos atalhos rápidos de rodovias/cidades acima.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          errorMsg = "Sinal indisponível. Use os atalhos rápidos de rodovias/cidades acima.";
+          break;
+        case error.TIMEOUT:
+          errorMsg = "O sinal demorou a responder. Use os atalhos rápidos de rodovias/cidades acima.";
+          break;
+      }
+      status.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i> <span>${errorMsg}</span>`;
+      lucide.createIcons();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
       loadDriversData();
