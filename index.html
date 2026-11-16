@@ -59,7 +59,7 @@ html_content = """<!DOCTYPE html>
 
     <!-- ================= HERO & BUSCA ================= -->
     <section class="bg-gradient-to-br from-gray-800 to-gray-950 border border-gray-800 p-6 md:p-8 rounded-2xl shadow-xl">
-      <div class="max-w-2xl">
+      <div class="max-w-3xl">
         <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
           Carro quebrou? Encontre um <span class="text-amber-400">Reboque 24h</span> agora.
         </h1>
@@ -68,7 +68,7 @@ html_content = """<!DOCTYPE html>
         </p>
 
         <!-- Input de Localização com Autocomplete + Botão GPS -->
-        <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
           <div class="relative flex-grow" id="search-container">
             <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-3.5 text-gray-400"></i>
             <input type="text" id="search-input" autocomplete="off"
@@ -92,6 +92,20 @@ html_content = """<!DOCTYPE html>
             <i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS
           </button>
         </div>
+
+        <!-- Atalhos Rápidos (Opção B - Acesso com 1 clique para rodovias e cidades) -->
+        <div class="flex flex-wrap items-center gap-2 pt-2">
+          <span class="text-xs text-gray-400 font-medium flex items-center gap-1">
+            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Atalhos rápidos:
+          </span>
+          <button onclick="quickFilter('Belo Horizonte')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Belo Horizonte</button>
+          <button onclick="quickFilter('Contagem')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Contagem</button>
+          <button onclick="quickFilter('Betim')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Betim</button>
+          <button onclick="quickFilter('Nova Lima')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Nova Lima</button>
+          <button onclick="quickFilter('BR-381')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-381</button>
+          <button onclick="quickFilter('BR-040')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-040</button>
+          <button onclick="quickFilter('Anel Rodoviário')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">Anel Rodoviário</button>
+        </div>
         
         <!-- Mensagem de status do GPS / Busca -->
         <div id="gps-status" class="mt-3 text-xs font-medium hidden flex items-center gap-1.5"></div>
@@ -112,7 +126,7 @@ html_content = """<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- ================= INDICADORES DE QUALIDADE / SEO (NO FINAL DA PÁGINA) ================= -->
+    <!-- ================= INDICADORES DE QUALIDADE / SEO (MOVIDOS PARA O FINAL) ================= -->
     <section class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center pt-6 border-t border-gray-800">
       <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
         <p class="text-xs text-gray-400">Atendimento</p>
@@ -318,6 +332,14 @@ html_content = """<!DOCTYPE html>
       filterDrivers();
     }
 
+    function quickFilter(term) {
+      const input = document.getElementById('search-input');
+      input.value = term;
+      document.getElementById('suggestions-list').classList.add('hidden');
+      document.getElementById('clear-search-btn').classList.remove('hidden');
+      filterDrivers();
+    }
+
     function clearSearch() {
       const input = document.getElementById('search-input');
       input.value = "";
@@ -366,7 +388,7 @@ html_content = """<!DOCTYPE html>
           <div class="col-span-full py-12 text-center text-gray-500 bg-gray-800/20 rounded-2xl border border-gray-800">
             <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-2 text-gray-600"></i>
             <p class="font-medium text-gray-300">Nenhum guincho encontrado para essa busca.</p>
-            <p class="text-xs mt-1">Tente limpar o filtro ou digitar sua cidade/rodovia manualmente.</p>
+            <p class="text-xs mt-1">Tente limpar o filtro, usar um atalho rápido ou clicar em "Usar Meu GPS".</p>
           </div>
         `;
         lucide.createIcons();
@@ -375,7 +397,7 @@ html_content = """<!DOCTYPE html>
 
       listEl.innerHTML = drivers.map(d => {
         const cleanPhone = d.phone.replace(/\\D/g, '');
-        const distText = (typeof d.distanceKm === 'number') ? ` (estou a cerca de ${d.distanceKm.toFixed(1)} km)` : '';
+        const distText = (typeof d.distanceKm === 'number') ? ` (distância estimada de ${d.distanceKm.toFixed(1)} km)` : '';
         const message = encodeURIComponent(`Olá ${d.name}, vi seu contato no site Reboque 24h${distText} e preciso de socorro veicular!`);
         const waLink = `https://wa.me/55${cleanPhone}?text=${message}`;
 
@@ -427,75 +449,180 @@ html_content = """<!DOCTYPE html>
       lucide.createIcons();
     }
 
-    // ================= GPS DE BAIXA PRECISÃO (OPÇÃO A) =================
-    function useGPS() {
-      const status = document.getElementById('gps-status');
-      const btnGps = document.getElementById('btn-gps');
-      
-      status.className = "mt-3 text-xs font-medium text-amber-400 flex items-center gap-1.5";
-      status.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Obtendo localização aproximada...`;
-      status.classList.remove('hidden');
-      lucide.createIcons();
+    // ================= LOCALIZAÇÃO ROBUSTA: GPS + REDE + IP =================
+    // GPS/rede são obtidos pelo navegador. IP é apenas uma estimativa regional.
+    let locationRequestInProgress = false;
 
+    function setGpsStatus(message, type = "info") {
+      const status = document.getElementById('gps-status');
+      const styles = { info: "text-amber-400", success: "text-emerald-400", warning: "text-amber-300", error: "text-red-400" };
+      const icons = { info: "loader-2", success: "check-circle-2", warning: "map-pin", error: "alert-triangle" };
+      status.className = `mt-3 text-xs font-medium flex items-center gap-1.5 ${styles[type] || styles.info}`;
+      status.innerHTML = `<i data-lucide="${icons[type] || icons.info}" class="w-4 h-4 shrink-0"></i><span>${message}</span>`;
+      status.classList.remove('hidden');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function setGpsButtonLoading(loading) {
+      const btn = document.getElementById('btn-gps');
+      btn.disabled = loading;
+      btn.classList.toggle('opacity-70', loading);
+      btn.classList.toggle('cursor-not-allowed', loading);
+      btn.innerHTML = loading
+        ? `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Localizando...`
+        : `<i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS`;
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function applyUserLocation(latitude, longitude, source, details = {}) {
+      userLocation = {
+        lat: Number(latitude), lng: Number(longitude), source,
+        accuracy: Number.isFinite(details.accuracy) ? details.accuracy : null,
+        city: details.city || "", region: details.region || ""
+      };
+
+      document.getElementById('search-input').value = "";
+      document.getElementById('clear-search-btn').classList.add('hidden');
+
+      const placeName = [details.city, details.region].filter(Boolean).join(" - ");
+      document.getElementById('list-title').innerHTML =
+        `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos${placeName ? ` de ${placeName}` : " de Você"}`;
+
+      filterDrivers();
+      if (window.lucide) lucide.createIcons();
+    }
+
+    async function fetchWithTimeout(url, timeoutMs = 7000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { signal: controller.signal, headers: { "Accept": "application/json" } });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    // Converte coordenadas em cidade. Se falhar, a ordenação por distância continua funcionando.
+    async function reverseGeocode(latitude, longitude) {
+      try {
+        const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=pt`;
+        const response = await fetchWithTimeout(url, 6000);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        return {
+          city: data.city || data.locality || "",
+          region: data.principalSubdivision || ""
+        };
+      } catch (error) {
+        console.warn("Falha ao identificar o nome da cidade:", error);
+        return { city: "", region: "" };
+      }
+    }
+
+    async function handleLocationSuccess(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const accuracy = position.coords.accuracy;
+      const place = await reverseGeocode(latitude, longitude);
+
+      applyUserLocation(latitude, longitude, "gps", { accuracy, city: place.city, region: place.region });
+      setGpsButtonLoading(false);
+
+      const placeText = [place.city, place.region].filter(Boolean).join(" - ");
+      const accuracyText = Number.isFinite(accuracy) ? ` Precisão informada pelo aparelho: cerca de ${Math.round(accuracy)} m.` : "";
+      setGpsStatus(`Localização obtida pelo aparelho${placeText ? `: ${placeText}.` : "."}${accuracyText}`, "success");
+      locationRequestInProgress = false;
+    }
+
+    // Dois provedores em sequência: se um estiver indisponível ou limitar requisições, tenta o outro.
+    async function getLocationByIP() {
+      const providers = [
+        async () => {
+          const response = await fetchWithTimeout("https://ipwho.is/", 6000);
+          const data = await response.json();
+          if (!response.ok || data.success === false || !Number.isFinite(Number(data.latitude)) || !Number.isFinite(Number(data.longitude))) throw new Error("Resposta inválida do ipwho.is");
+          return { lat: Number(data.latitude), lng: Number(data.longitude), city: data.city || "", region: data.region || "" };
+        },
+        async () => {
+          const response = await fetchWithTimeout("https://ipapi.co/json/", 6000);
+          const data = await response.json();
+          if (!response.ok || data.error || !Number.isFinite(Number(data.latitude)) || !Number.isFinite(Number(data.longitude))) throw new Error("Resposta inválida do ipapi.co");
+          return { lat: Number(data.latitude), lng: Number(data.longitude), city: data.city || "", region: data.region || data.region_code || "" };
+        }
+      ];
+
+      for (const provider of providers) {
+        try { return await provider(); }
+        catch (error) { console.warn("Provedor de localização por IP falhou:", error); }
+      }
+      throw new Error("Os provedores de localização por IP não responderam.");
+    }
+
+    async function tryIPFallback(reason) {
+      setGpsStatus("Não foi possível obter o GPS. Tentando estimar sua região pela conexão...", "info");
+      try {
+        const location = await getLocationByIP();
+        applyUserLocation(location.lat, location.lng, "ip", { city: location.city, region: location.region });
+        setGpsButtonLoading(false);
+        const placeText = [location.city, location.region].filter(Boolean).join(" - ");
+        setGpsStatus(
+          `Localização aproximada pela internet${placeText ? `: ${placeText}` : ""}. As distâncias são estimativas. Você também pode confirmar sua cidade na busca.`,
+          "warning"
+        );
+      } catch (error) {
+        console.error("Falha nos métodos automáticos de localização:", reason, error);
+        setGpsButtonLoading(false);
+        setGpsStatus("Não conseguimos localizar você automaticamente. Digite sua cidade ou escolha um dos atalhos.", "error");
+      } finally {
+        locationRequestInProgress = false;
+      }
+    }
+
+    function useGPS() {
+      if (locationRequestInProgress) return;
+      locationRequestInProgress = true;
+      setGpsButtonLoading(true);
+      setGpsStatus("Solicitando a localização do aparelho. Quando o navegador perguntar, toque em Permitir.", "info");
+
+      // Geolocation exige HTTPS em produção (localhost funciona para desenvolvimento).
+      if (!window.isSecureContext) {
+        tryIPFallback("O site não está em HTTPS");
+        return;
+      }
       if (!("geolocation" in navigator)) {
-        status.className = "mt-3 text-xs font-medium text-red-400 flex items-center gap-1.5";
-        status.innerHTML = `<i data-lucide="alert-circle" class="w-4 h-4"></i> Seu navegador não suporta geolocalização.`;
-        lucide.createIcons();
+        tryIPFallback("Navegador sem suporte à Geolocation API");
         return;
       }
 
-      btnGps.disabled = true;
-      btnGps.classList.add('opacity-70');
-
-      // Opção A: Baixa precisão (foca em torres de celular e Wi-Fi, altíssima taxa de sucesso no iPhone)
-      const options = {
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 60000
-      };
-
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          btnGps.disabled = false;
-          btnGps.classList.remove('opacity-70');
+        handleLocationSuccess,
+        async (error) => {
+          console.warn("Tentativa principal de localização falhou:", error);
 
-          userLocation = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-
-          document.getElementById('search-input').value = "";
-          document.getElementById('clear-search-btn').classList.add('hidden');
-          document.getElementById('list-title').innerHTML = `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos de Você`;
-
-          status.className = "mt-3 text-xs font-medium text-emerald-400 flex items-center gap-1.5";
-          status.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4"></i> Localização obtida! Guinchos ordenados por proximidade.`;
-          
-          filterDrivers();
-          lucide.createIcons();
-        },
-        (error) => {
-          btnGps.disabled = false;
-          btnGps.classList.remove('opacity-70');
-          status.className = "mt-3 text-xs font-medium text-red-400 flex items-center gap-1.5";
-
-          let errorMsg = "Não foi possível obter sua localização.";
-          switch(error.code) {
-            case error.PERMISSION_DENIED:
-              errorMsg = "Permissão de localização bloqueada nas configurações do seu celular.";
-              break;
-            case error.POSITION_UNAVAILABLE:
-              errorMsg = "Sinal de rede indisponível. Digite sua cidade ou rodovia manualmente.";
-              break;
-            case error.TIMEOUT:
-              errorMsg = "A busca demorou muito. Tente novamente ou digite sua cidade.";
-              break;
+          // Permissão negada não se resolve repetindo getCurrentPosition.
+          if (error.code === error.PERMISSION_DENIED) {
+            await tryIPFallback("Permissão de localização negada");
+            return;
           }
-          status.innerHTML = `<i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i> <span>${errorMsg}</span>`;
-          lucide.createIcons();
+
+          // Timeout/posição indisponível: tenta uma vez com localização baseada em rede.
+          setGpsStatus("Tentando localizar pela rede móvel ou Wi-Fi...", "info");
+          navigator.geolocation.getCurrentPosition(
+            handleLocationSuccess,
+            async (secondError) => {
+              console.warn("Tentativa alternativa do navegador falhou:", secondError);
+              await tryIPFallback(secondError);
+            },
+            { enableHighAccuracy: false, timeout: 12000, maximumAge: 120000 }
+          );
         },
-        options
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
       );
+    }
+
+    // Compatibilidade com eventual chamada antiga desta função.
+    function failGPS(error) {
+      tryIPFallback(error);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
