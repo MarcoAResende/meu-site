@@ -93,7 +93,7 @@ html_content = """<!DOCTYPE html>
           </button>
         </div>
 
-        <!-- Atalhos Rápidos (Opção B - Acesso com 1 clique para rodovias e cidades) -->
+        <!-- Atalhos Rápidos (Acesso com 1 clique para rodovias e cidades) -->
         <div class="flex flex-wrap items-center gap-2 pt-2">
           <span class="text-xs text-gray-400 font-medium flex items-center gap-1">
             <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Atalhos rápidos:
@@ -126,7 +126,7 @@ html_content = """<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- ================= INDICADORES DE QUALIDADE / SEO (MOVIDOS PARA O FINAL) ================= -->
+    <!-- ================= INDICADORES DE QUALIDADE / SEO (NO FINAL) ================= -->
     <section class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center pt-6 border-t border-gray-800">
       <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
         <p class="text-xs text-gray-400">Atendimento</p>
@@ -207,6 +207,7 @@ html_content = """<!DOCTYPE html>
     let allDrivers = [];
     let availableSuggestions = [...baseLocations];
     let userLocation = null;
+    let isGpsAutoFilled = false; // Controla se o texto do campo veio do GPS
 
     function normalizeText(text) {
       if (!text) return "";
@@ -287,6 +288,9 @@ html_content = """<!DOCTYPE html>
     }
 
     function handleSearchInput() {
+      // Se o usuário começar a digitar manualmente, desativa a trava do texto automático do GPS
+      isGpsAutoFilled = false;
+
       const input = document.getElementById('search-input');
       const clearBtn = document.getElementById('clear-search-btn');
       const suggestionsEl = document.getElementById('suggestions-list');
@@ -325,6 +329,7 @@ html_content = """<!DOCTYPE html>
     }
 
     function selectSuggestion(locationName) {
+      isGpsAutoFilled = false;
       const input = document.getElementById('search-input');
       input.value = locationName;
       document.getElementById('suggestions-list').classList.add('hidden');
@@ -333,6 +338,7 @@ html_content = """<!DOCTYPE html>
     }
 
     function quickFilter(term) {
+      isGpsAutoFilled = false;
       const input = document.getElementById('search-input');
       input.value = term;
       document.getElementById('suggestions-list').classList.add('hidden');
@@ -341,6 +347,7 @@ html_content = """<!DOCTYPE html>
     }
 
     function clearSearch() {
+      isGpsAutoFilled = false;
       const input = document.getElementById('search-input');
       input.value = "";
       document.getElementById('suggestions-list').classList.add('hidden');
@@ -358,11 +365,14 @@ html_content = """<!DOCTYPE html>
     function filterDrivers() {
       const query = normalizeText(document.getElementById('search-input').value);
       
-      let filtered = allDrivers.filter(d => 
-        normalizeText(d.name).includes(query) ||
-        normalizeText(d.region).includes(query) ||
-        normalizeText(d.type).includes(query)
-      );
+      // Se o campo foi preenchido automaticamente pelo GPS, mostra todos ordenados por proximidade (sem esconder motoristas vizinhos)
+      let filtered = isGpsAutoFilled 
+        ? [...allDrivers]
+        : allDrivers.filter(d => 
+            normalizeText(d.name).includes(query) ||
+            normalizeText(d.region).includes(query) ||
+            normalizeText(d.type).includes(query)
+          );
 
       if (userLocation) {
         filtered = filtered.map(d => {
@@ -450,7 +460,6 @@ html_content = """<!DOCTYPE html>
     }
 
     // ================= LOCALIZAÇÃO ROBUSTA: GPS + REDE + IP =================
-    // GPS/rede são obtidos pelo navegador. IP é apenas uma estimativa regional.
     let locationRequestInProgress = false;
 
     function setGpsStatus(message, type = "info") {
@@ -481,10 +490,25 @@ html_content = """<!DOCTYPE html>
         city: details.city || "", region: details.region || ""
       };
 
-      document.getElementById('search-input').value = "";
-      document.getElementById('clear-search-btn').classList.add('hidden');
-
+      const searchInput = document.getElementById('search-input');
+      const clearBtn = document.getElementById('clear-search-btn');
       const placeName = [details.city, details.region].filter(Boolean).join(" - ");
+
+      // Preenche o campo de busca com o nome da cidade para feedback visual imediato ao cliente
+      if (details.city) {
+        searchInput.value = details.city;
+        isGpsAutoFilled = true;
+        clearBtn.classList.remove('hidden');
+      } else if (placeName) {
+        searchInput.value = placeName;
+        isGpsAutoFilled = true;
+        clearBtn.classList.remove('hidden');
+      } else {
+        searchInput.value = "Localização atual (GPS)";
+        isGpsAutoFilled = true;
+        clearBtn.classList.remove('hidden');
+      }
+
       document.getElementById('list-title').innerHTML =
         `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos${placeName ? ` de ${placeName}` : " de Você"}`;
 
@@ -502,7 +526,6 @@ html_content = """<!DOCTYPE html>
       }
     }
 
-    // Converte coordenadas em cidade. Se falhar, a ordenação por distância continua funcionando.
     async function reverseGeocode(latitude, longitude) {
       try {
         const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=pt`;
@@ -534,7 +557,6 @@ html_content = """<!DOCTYPE html>
       locationRequestInProgress = false;
     }
 
-    // Dois provedores em sequência: se um estiver indisponível ou limitar requisições, tenta o outro.
     async function getLocationByIP() {
       const providers = [
         async () => {
@@ -584,7 +606,6 @@ html_content = """<!DOCTYPE html>
       setGpsButtonLoading(true);
       setGpsStatus("Solicitando a localização do aparelho. Quando o navegador perguntar, toque em Permitir.", "info");
 
-      // Geolocation exige HTTPS em produção (localhost funciona para desenvolvimento).
       if (!window.isSecureContext) {
         tryIPFallback("O site não está em HTTPS");
         return;
@@ -599,13 +620,11 @@ html_content = """<!DOCTYPE html>
         async (error) => {
           console.warn("Tentativa principal de localização falhou:", error);
 
-          // Permissão negada não se resolve repetindo getCurrentPosition.
           if (error.code === error.PERMISSION_DENIED) {
             await tryIPFallback("Permissão de localização negada");
             return;
           }
 
-          // Timeout/posição indisponível: tenta uma vez com localização baseada em rede.
           setGpsStatus("Tentando localizar pela rede móvel ou Wi-Fi...", "info");
           navigator.geolocation.getCurrentPosition(
             handleLocationSuccess,
@@ -620,7 +639,6 @@ html_content = """<!DOCTYPE html>
       );
     }
 
-    // Compatibilidade com eventual chamada antiga desta função.
     function failGPS(error) {
       tryIPFallback(error);
     }
