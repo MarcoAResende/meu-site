@@ -100,7 +100,7 @@ html_content = r"""<!DOCTYPE html>
           </span>
           <button onclick="quickFilter('Belo Horizonte')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Belo Horizonte</button>
           <button onclick="quickFilter('Contagem')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Contagem</button>
-          <button onclick="quickFilter('Betim')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Betim</button>
+          <button onclick="quickFilter('Bom Despacho')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Bom Despacho</button>
           <button onclick="quickFilter('Uberlândia')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Uberlândia</button>
           <button onclick="quickFilter('BR-381')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-381</button>
           <button onclick="quickFilter('BR-040')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-040</button>
@@ -187,32 +187,30 @@ html_content = r"""<!DOCTYPE html>
         id: "3",
         name: "Auto Socorro Silva",
         phone: "31977778888",
-        region: "Nova Lima, Sabará e Centro",
+        region: "Bom Despacho / Nova Lima",
         type: "Veículos Leves e Utilitários",
         verified: false,
         desc: "Socorro veicular rápido com preço justo. Atendimento prévio via WhatsApp.",
         photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-        lat: -19.9858,
-        lng: -43.8469
+        lat: -19.7368,
+        lng: -45.2587
       }
     ];
 
-    // Rodovias e cidades base (garantidas imediatamente mesmo antes da API do IBGE responder)
     const baseLocations = [
-      "Belo Horizonte", "Contagem", "Betim", "Uberlândia", "Juiz de Fora",
-      "Montes Claros", "Ribeirão das Neves", "Uberaba", "Governador Valadares",
-      "Ipatinga", "Sete Lagoas", "Divinópolis", "Santa Luzia", "Ibirité",
-      "Poços de Caldas", "Patos de Minas", "Pouso Alegre", "Teófilo Otoni",
-      "Barbacena", "Sabará", "Varginha", "Conselheiro Lafaiete", "Vespasiano",
-      "Itabira", "Araguari", "Passos", "Ubá", "Coronel Fabriciano", "Muriaé",
-      "Nova Lima", "Ituiutaba", "Araxá", "Lavras", "Itajubá", "Itaúna",
-      "Pará de Minas", "Paracatu", "Caratinga", "Nova Serrana", "São João del Rei",
-      "Patrocínio", "Timóteo", "Manhuaçu", "Unaí", "Curvelo", "Alfenas",
-      "João Monlevade", "Três Corações", "Viçosa", "Cataguases", "Ouro Preto",
-      "Janaúba", "São Sebastião do Paraíso", "Januária", "Formiga", "Esmeraldas",
-      "Pedro Leopoldo", "Lagoa Santa", "Mariana", "Frutal", "Ponte Nova",
-      "Três Pontas", "São Francisco", "Pirapora", "Campo Belo", "Leopoldina",
-      "Congonhas", "Guaxupé", "Lagoa da Prata", "Itabirito", "Bom Despacho",
+      "Belo Horizonte", "Contagem", "Betim", "Bom Despacho", "Uberlândia", "Juiz de Fora",
+      "Montes Claros", "Uberaba", "Governador Valadares", "Ipatinga", "Sete Lagoas",
+      "Divinópolis", "Santa Luzia", "Ibirité", "Poços de Caldas", "Patos de Minas",
+      "Pouso Alegre", "Teófilo Otoni", "Barbacena", "Sabará", "Varginha",
+      "Conselheiro Lafaiete", "Vespasiano", "Itabira", "Araguari", "Passos",
+      "Ubá", "Coronel Fabriciano", "Muriaé", "Nova Lima", "Ituiutaba", "Araxá",
+      "Lavras", "Itajubá", "Itaúna", "Pará de Minas", "Paracatu", "Caratinga",
+      "Nova Serrana", "São João del Rei", "Patrocínio", "Timóteo", "Manhuaçu",
+      "Unaí", "Curvelo", "Alfenas", "João Monlevade", "Três Corações", "Viçosa",
+      "Cataguases", "Ouro Preto", "Janaúba", "São Sebastião do Paraíso", "Januária",
+      "Formiga", "Esmeraldas", "Pedro Leopoldo", "Lagoa Santa", "Mariana", "Frutal",
+      "Ponte Nova", "Três Pontas", "São Francisco", "Pirapora", "Campo Belo",
+      "Leopoldina", "Congonhas", "Guaxupé", "Lagoa da Prata", "Itabirito",
       "Bocaiúva", "Diamantina", "João Pinheiro", "São Lourenço", "Santos Dumont",
       "Caeté", "Santa Rita do Sapucaí", "Visconde do Rio Branco", "Machado",
       "Oliveira", "Salinas", "Andradas", "Brumadinho", "Nanuque", "Arcos",
@@ -225,7 +223,6 @@ html_content = r"""<!DOCTYPE html>
     let userLocation = null;
     let isGpsAutoFilled = false;
 
-    // Normaliza texto removendo acentos e deixando em minúsculo
     function normalizeText(text) {
       if (!text) return "";
       return String(text)
@@ -248,7 +245,6 @@ html_content = r"""<!DOCTYPE html>
       return R * c;
     }
 
-    // Carrega os 853 municípios oficiais de Minas Gerais direto da API do IBGE
     async function loadAllMinasGeraisCities() {
       const set = new Set(availableSuggestions);
       try {
@@ -260,7 +256,7 @@ html_content = r"""<!DOCTYPE html>
           });
         }
       } catch (err) {
-        console.warn("Não foi possível atualizar a lista pelo IBGE, usando base local:", err);
+        console.warn("Aviso ao carregar municípios do IBGE:", err);
       }
       availableSuggestions = Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
     }
@@ -336,7 +332,6 @@ html_content = r"""<!DOCTYPE html>
       }
 
       if (query.length >= 1) {
-        // Prioriza cidades que COMEÇAM com o que foi digitado, depois as que contêm no meio
         const startsWithMatches = [];
         const containsMatches = [];
 
@@ -408,19 +403,13 @@ html_content = r"""<!DOCTYPE html>
       }
     });
 
+    // ================= ORDENAÇÃO INTELIGENTE POR PROXIMIDADE =================
     function filterDrivers() {
       const query = normalizeText(document.getElementById('search-input').value);
       
-      let filtered = isGpsAutoFilled 
-        ? [...allDrivers]
-        : allDrivers.filter(d => 
-            normalizeText(d.name).includes(query) ||
-            normalizeText(d.region).includes(query) ||
-            normalizeText(d.type).includes(query)
-          );
-
+      // Se tiver GPS ativo, calcula distância geográfica real (em km)
       if (userLocation) {
-        filtered = filtered.map(d => {
+        let filtered = allDrivers.map(d => {
           const dist = calculateDistanceKm(userLocation.lat, userLocation.lng, d.lat, d.lng);
           return { ...d, distanceKm: dist };
         }).sort((a, b) => {
@@ -428,9 +417,40 @@ html_content = r"""<!DOCTYPE html>
           if (b.distanceKm === null) return -1;
           return a.distanceKm - b.distanceKm;
         });
+        renderClientCards(filtered);
+        return;
       }
 
-      renderClientCards(filtered);
+      // Se o usuário digitou ou escolheu uma cidade/região na busca:
+      // 1º Prioridade: Motoristas que atendem exatamente à cidade digitada.
+      // 2º Garantia: Se não houver motorista exato na cidade, mostra os demais motoristas da frota ordenados para nunca ficar vazio.
+      let exactMatches = [];
+      let otherDrivers = [];
+
+      allDrivers.forEach(d => {
+        const normRegion = normalizeText(d.region);
+        const normName = normalizeText(d.name);
+        const normType = normalizeText(d.type);
+
+        if (query === "" || normRegion.includes(query) || normName.includes(query) || normType.includes(query)) {
+          // Se a região bate exatamente com a busca do usuário
+          if (query !== "" && normRegion.includes(query)) {
+            exactMatches.push({ ...d, matchScore: 1 });
+          } else {
+            otherDrivers.push({ ...d, matchScore: 2 });
+          }
+        }
+      });
+
+      // Ordena colocando os correspondentes exatos primeiro, seguidos dos demais prestadores disponíveis
+      let sortedDrivers = [...exactMatches, ...otherDrivers];
+
+      // Se o usuário digitou algo e não achou exato, garante que mostre os motoristas cadastrados para não zerar a tela
+      if (sortedDrivers.length === 0 && query !== "") {
+        sortedDrivers = allDrivers.map(d => ({ ...d, matchScore: 3 }));
+      }
+
+      renderClientCards(sortedDrivers);
     }
 
     function renderClientCards(drivers) {
@@ -504,7 +524,7 @@ html_content = r"""<!DOCTYPE html>
       if (window.lucide) lucide.createIcons();
     }
 
-    // ================= LOCALIZAÇÃO ROBUSTA: GPS + REDE + IP =================
+    // ================= LOCALIZAÇÃO GPS =================
     let locationRequestInProgress = false;
 
     function setGpsStatus(message, type = "info") {
