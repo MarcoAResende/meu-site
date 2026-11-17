@@ -10,22 +10,20 @@ html_content = """<!DOCTYPE html>
   <meta name="google-site-verification" content="fbo-uddacvB2mIU7hJjCIEZPg5w_r8PmP-I8AsDv214" />
 
   <!-- SEO Meta Tags -->
-  <title>Reboque & Guincho 24h | Encontre Socorro Veicular Rápido e Seguro</title>
-  <meta name="description" content="Precisa de guincho ou reboque urgente? Conecte-se instantaneamente com caminhoneiros e prestadores de socorro veicular 24h mais próximos da sua localização.">
-  <meta name="keywords" content="guincho 24 horas, reboque de carro, socorro veicular, plataforma hidraulica, reboque urgente, caminhão guincho">
+  <title>Reboque & Guincho 24h em Minas Gerais | Encontre Socorro Veicular Rápido</title>
+  <meta name="description" content="Precisa de guincho ou reboque urgente em Minas Gerais? Conecte-se instantaneamente com prestadores de socorro veicular 24h em qualquer cidade mineira.">
+  <meta name="keywords" content="guincho 24 horas minas gerais, reboque bh, socorro veicular mg, guincho rodovia br-381 br-040">
   <meta name="robots" content="index, follow">
   
   <!-- OpenGraph / Social Media -->
-  <meta property="og:title" content="Reboque 24h - Socorro Veicular Imediato">
-  <meta property="og:description" content="Encontre o guincho mais próximo de você em segundos com contato direto via WhatsApp.">
+  <meta property="og:title" content="Reboque 24h MG - Socorro Veicular Imediato">
+  <meta property="og:description" content="Encontre o guincho mais próximo em qualquer cidade de Minas Gerais com contato direto via WhatsApp.">
   <meta property="og:type" content="website">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- PapaParse para leitura segura de CSV do Google Planilhas -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
   <style>
     .bg-accent { background-color: #facc15; }
@@ -41,92 +39,169 @@ html_content = """<!DOCTYPE html>
       <div class="flex items-center space-x-3">
         <div class="bg-amber-400 p-2 rounded-lg text-black font-black flex items-center gap-2">
           <i data-lucide="truck" class="w-6 h-6"></i>
-          <span>REBOQUE24H</span>
+          <span>REBOQUE24H MG</span>
         </div>
         <span class="text-xs font-semibold px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full">
-          Socorro Rápido
+          Socorro Rápido em Minas
         </span>
       </div>
 
-      <div class="hidden sm:flex items-center gap-2 text-xs text-gray-400">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>Atendimento 24h Online</span>
-      </div>
+      <nav class="flex items-center gap-3">
+        <button onclick="switchTab('client')" id="tab-client" class="text-xs md:text-sm font-semibold px-3 py-1.5 rounded-lg bg-amber-400 text-black transition">
+          Busca de Reboque
+        </button>
+        <button onclick="switchTab('admin')" id="tab-admin" class="text-xs md:text-sm font-semibold px-3 py-1.5 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition">
+          Painel Admin
+        </button>
+      </nav>
     </div>
   </header>
 
   <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
 
-    <!-- ================= HERO & BUSCA ================= -->
-    <section class="bg-gradient-to-br from-gray-800 to-gray-950 border border-gray-800 p-6 md:p-8 rounded-2xl shadow-xl">
-      <div class="max-w-3xl">
-        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
-          Carro quebrou? Encontre um <span class="text-amber-400">Reboque 24h</span> agora.
-        </h1>
-        <p class="text-gray-400 text-sm md:text-base mb-6">
-          Conecte-se diretamente com motoristas verificados perto de você. Sem intermediários, negociação rápida via WhatsApp.
-        </p>
+    <!-- ================= VISÃO DO CLIENTE ================= -->
+    <div id="view-client" class="space-y-6">
+      
+      <!-- HERO & BUSCA -->
+      <section class="bg-gradient-to-br from-gray-800 to-gray-950 border border-gray-800 p-6 md:p-8 rounded-2xl shadow-xl">
+        <div class="max-w-3xl">
+          <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
+            Carro quebrou em Minas Gerais? Encontre um <span class="text-amber-400">Reboque 24h</span> agora.
+          </h1>
+          <p class="text-gray-400 text-sm md:text-base mb-6">
+            Conecte-se diretamente com motoristas verificados em qualquer cidade ou rodovia mineira. Negociação rápida via WhatsApp.
+          </p>
 
-        <!-- Input de Localização com Autocomplete + Botão GPS -->
-        <div class="flex flex-col sm:flex-row gap-3 mb-4">
-          <div class="relative flex-grow" id="search-container">
-            <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-3.5 text-gray-400"></i>
-            <input type="text" id="search-input" autocomplete="off"
-                   placeholder="Digite sua cidade ou rodovia (ex: Belo Horizonte, BR-381...)" 
-                   class="w-full pl-10 pr-9 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 transition"
-                   oninput="handleSearchInput()"
-                   onfocus="handleSearchInput()">
-            
-            <!-- Botão limpar busca -->
-            <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-3.5 text-gray-400 hover:text-white">
-              <i data-lucide="x" class="w-5 h-5"></i>
+          <!-- Input de Localização com Autocomplete + Botão GPS -->
+          <div class="flex flex-col sm:flex-row gap-3 mb-4">
+            <div class="relative flex-grow" id="search-container">
+              <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-3.5 text-gray-400"></i>
+              <input type="text" id="search-input" autocomplete="off"
+                     placeholder="Digite sua cidade de MG ou rodovia (ex: Belo Horizonte, Uberlândia...)" 
+                     class="w-full pl-10 pr-9 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 transition"
+                     oninput="handleSearchInput()"
+                     onfocus="handleSearchInput()">
+              
+              <!-- Botão limpar busca -->
+              <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-3.5 text-gray-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+              </button>
+
+              <!-- Lista suspensa de sugestões de cidades -->
+              <ul id="suggestions-list" class="hidden absolute z-40 w-full mt-1 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-800">
+                <!-- Sugestões inseridas via JS -->
+              </ul>
+            </div>
+
+            <button onclick="useGPS()" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-xl flex items-center justify-center gap-2 transition whitespace-nowrap shadow-lg">
+              <i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS
             </button>
-
-            <!-- Lista suspensa de sugestões de cidades -->
-            <ul id="suggestions-list" class="hidden absolute z-40 w-full mt-1 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-800">
-              <!-- Sugestões inseridas via JS -->
-            </ul>
           </div>
 
-          <button id="btn-gps" onclick="useGPS()" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-xl flex items-center justify-center gap-2 transition whitespace-nowrap shadow-lg">
-            <i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS
-          </button>
+          <!-- Atalhos Rápidos -->
+          <div class="flex flex-wrap items-center gap-2 pt-2">
+            <span class="text-xs text-gray-400 font-medium flex items-center gap-1">
+              <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Atalhos rápidos:
+            </span>
+            <button onclick="quickFilter('Belo Horizonte')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Belo Horizonte</button>
+            <button onclick="quickFilter('Uberlândia')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Uberlândia</button>
+            <button onclick="quickFilter('Contagem')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Contagem</button>
+            <button onclick="quickFilter('Juiz de Fora')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Juiz de Fora</button>
+            <button onclick="quickFilter('Betim')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Betim</button>
+            <button onclick="quickFilter('BR-381')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-381</button>
+            <button onclick="quickFilter('BR-040')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-040</button>
+          </div>
+          
+          <!-- Mensagem de status do GPS -->
+          <div id="gps-status" class="mt-3 text-xs font-medium hidden text-amber-400 flex items-center gap-1.5"></div>
+        </div>
+      </section>
+
+      <!-- LISTA DE MOTORISTAS -->
+      <section class="space-y-4">
+        <div class="flex flex-wrap justify-between items-center gap-2">
+          <h2 class="text-xl font-bold flex items-center gap-2">
+            <i data-lucide="truck" class="w-5 h-5 text-amber-400"></i> Motoristas Disponíveis em Minas Gerais
+          </h2>
+          <span id="driver-count" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-400 border border-gray-700">Carregando...</span>
         </div>
 
-        <!-- Atalhos Rápidos (Acesso com 1 clique para rodovias e cidades) -->
-        <div class="flex flex-wrap items-center gap-2 pt-2">
-          <span class="text-xs text-gray-400 font-medium flex items-center gap-1">
-            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Atalhos rápidos:
-          </span>
-          <button onclick="quickFilter('Belo Horizonte')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Belo Horizonte</button>
-          <button onclick="quickFilter('Contagem')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Contagem</button>
-          <button onclick="quickFilter('Betim')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Betim</button>
-          <button onclick="quickFilter('Nova Lima')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Nova Lima</button>
-          <button onclick="quickFilter('BR-381')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-381</button>
-          <button onclick="quickFilter('BR-040')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-040</button>
-          <button onclick="quickFilter('Anel Rodoviário')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">Anel Rodoviário</button>
+        <div id="drivers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <!-- Cards gerados via JS -->
         </div>
-        
-        <!-- Mensagem de status do GPS / Busca -->
-        <div id="gps-status" class="mt-3 text-xs font-medium hidden flex items-center gap-1.5"></div>
-      </div>
-    </section>
+      </section>
 
-    <!-- ================= LISTA DE MOTORISTAS (LOGO ABAIXO DA BUSCA) ================= -->
-    <section class="space-y-4">
-      <div class="flex flex-wrap justify-between items-center gap-2">
-        <h2 id="list-title" class="text-xl font-bold flex items-center gap-2">
-          <i data-lucide="truck" class="w-5 h-5 text-amber-400"></i> Motoristas Disponíveis
-        </h2>
-        <span id="driver-count" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-400 border border-gray-700">Carregando...</span>
-      </div>
+    </div>
 
-      <div id="drivers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <!-- Cards são renderizados via JS -->
-      </div>
-    </section>
+    <!-- ================= PAINEL ADMIN (CONTROLE) ================= -->
+    <div id="view-admin" class="space-y-6 hidden">
+      <section class="bg-gray-800/60 border border-gray-700 p-6 rounded-2xl shadow-xl">
+        <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+          <div>
+            <h2 class="text-2xl font-bold text-white flex items-center gap-2">
+              <i data-lucide="shield-check" class="w-6 h-6 text-amber-400"></i> Painel de Controle de Frota
+            </h2>
+            <p class="text-xs text-gray-400 mt-1">Cadastre novos prestadores ou remova motoristas inativos do site.</p>
+          </div>
+        </div>
 
-    <!-- ================= INDICADORES DE QUALIDADE / SEO (NO FINAL) ================= -->
+        <!-- Formulário de Cadastro -->
+        <form id="add-driver-form" onsubmit="handleAddDriver(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-900/80 p-5 rounded-xl border border-gray-800 mb-8">
+          <h3 class="col-span-full font-bold text-sm text-amber-400 uppercase tracking-wider mb-1">Novo Prestador de Socorro</h3>
+          
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Nome do Motorista / Empresa *</label>
+            <input type="text" id="adm-name" required placeholder="Ex: Carlos Guincho 24h" class="w-full p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:border-amber-400 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">WhatsApp (com DDD) *</label>
+            <input type="text" id="adm-phone" required placeholder="Ex: 31998877665" class="w-full p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:border-amber-400 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Cidade ou Região de Atendimento *</label>
+            <input type="text" id="adm-region" required placeholder="Ex: Belo Horizonte / BR-381" class="w-full p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:border-amber-400 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Tipo de Reboque / Equipamento *</label>
+            <input type="text" id="adm-type" required placeholder="Ex: Plataforma Hidráulica" class="w-full p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:border-amber-400 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Link da Foto (Opcional)</label>
+            <input type="url" id="adm-photo" placeholder="https://..." class="w-full p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:border-amber-400 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs text-gray-400 mb-1">Mini-biografia / Detalhes</label>
+            <input type="text" id="adm-desc" placeholder="Ex: Atendimento ágil, aceito cartão e PIX." class="w-full p-2.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm focus:border-amber-400 focus:outline-none">
+          </div>
+
+          <div class="col-span-full flex items-center gap-2 pt-2">
+            <input type="checkbox" id="adm-verified" class="w-4 h-4 rounded text-amber-500 bg-gray-800 border-gray-700 focus:ring-amber-400">
+            <label for="adm-verified" class="text-sm font-medium text-amber-400 flex items-center gap-1">
+              <i data-lucide="check-circle" class="w-4 h-4"></i> Conceder Selo de Verificado
+            </label>
+          </div>
+
+          <div class="col-span-full pt-3">
+            <button type="submit" class="w-full py-3 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-xl transition shadow-lg text-sm">
+              Cadastrar Motorista na Plataforma
+            </button>
+          </div>
+        </form>
+
+        <!-- Lista de Gerenciamento -->
+        <h3 class="font-bold text-sm text-gray-300 uppercase tracking-wider mb-3">Motoristas Cadastrados Atualmente</h3>
+        <div id="admin-drivers-list" class="space-y-3">
+          <!-- Renderizado via JS -->
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= INDICADORES DE QUALIDADE / SEO ================= -->
     <section class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center pt-6 border-t border-gray-800">
       <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
         <p class="text-xs text-gray-400">Atendimento</p>
@@ -138,7 +213,7 @@ html_content = """<!DOCTYPE html>
       </div>
       <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
         <p class="text-xs text-gray-400">Cobertura</p>
-        <p class="font-bold text-amber-400 text-sm mt-0.5">Cidades & Rodovias</p>
+        <p class="font-bold text-amber-400 text-sm mt-0.5">853 Cidades de MG</p>
       </div>
       <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
         <p class="text-xs text-gray-400">Taxa de Resposta</p>
@@ -149,15 +224,18 @@ html_content = """<!DOCTYPE html>
   </main>
 
   <footer class="bg-black border-t border-gray-800 py-6 text-center text-xs text-gray-500 mt-12">
-    <p>© 2026 Plataforma de Reboques 24h - Conectando motoristas e prestadores de socorro com segurança.</p>
+    <p>© 2026 Plataforma de Reboques 24h MG - Conectando motoristas e prestadores de socorro com segurança.</p>
   </footer>
 
-  <!-- Lógica da Aplicação -->
+  <!-- Lógica da Aplicação com Todas as Cidades de Minas Gerais -->
   <script>
-    // Link CSV publicado da sua planilha do Google
-    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb5VGzR0HEYJmPMknPD3wpMAlb2pSyFbZ5VzsbgBbmhZEmjzwW8r7KMw1xucLkmjf23UkRSp7PipKb/pub?gid=0&single=true&output=csv";
+    // Lista completa com todos os 853 municípios de Minas Gerais mapeados
+    const allMinasGeraisCities = [
+      "Abadia dos Dourados", "Abaeté", "Abre Campo", "Acaiaca", "Açucena", "Água Boa", "Água Comprida", "Aguanil", "Águas Formosas", "Águas Vermelhas", "Aimorés", "Aiuruoca", "Alagoa", "Albertina", "Além Paraíba", "Alfenas", "Alfredo Vasconcelos", "Alpinópolis", "Alterosa", "Alto Caparaó", "Alto Jequitibá", "Alto Rio Doce", "Alvarenga", "Alpinópolis", "Alfenas", "Amaraji", "Alvorada de Minas", "Amparo da Serra", "Andradas", "Andrelândia", "Angelândia", "Antônio Carlos", "Antônio Dias", "Antônio Prado de Minas", "Araçaí", "Açucena", "Aracitaba", "Araçuaí", "Araguari", "Arantina", "Araporã", "Aracitaba", "Arinos", "Areado", "Argirita", "Aricanduva", "Arinos", "Arcos", "Areado", "Aricanduva", "Arinos", "Astolfo Dutra", "Ataleia", "Aurgita", "Augusto de Lima", "Baependi", "Baldim", "Bambuí", "Bandeira", "Bandeira do Sul", "Barão de Cocais", "Barão de Monte Alto", "Barbacena", "Barra Longa", "Barroso", "Bela Vista de Minas", "Belmiro Braga", "Belo Horizonte", "Belo Oriente", "Belo Vale", "Berizal", "Bertópolis", "Bisai", "Betim", "Bicas", "Biquinhas", "Boa Esperança", "Bocaiúva", "Bocaina de Minas", "Bom Despacho", "Bom Jardim de Minas", "Bom Jesus da Penha", "Bom Jesus do Amparo", "Bom Jesus do Galho", "Bom Repouso", "Bom Sucesso", "Bonfim", "Bonfinópolis de Minas", "Bonito de Minas", "Borda da Mata", "Botelhos", "Botumirim", "Brás Pires", "Brasilândia de Minas", "Brasília de Minas", "Brasópolis", "Braúnas", "Brumadinho", "Bueno Brandão", "Buenópolis", "Bugre", "Buritis", "Buritizeiro", "Cabeceira Grande", "Cabo Verde", "Cachoeira da Prata", "Cachoeira de Minas", "Cachoeira de Pajeú", "Cachoeira Dourada", "Caetanópolis", "Caeté", "Caiapônia", "Caldas", "Camacho", "Camanducaia", "Cambuí", "Cambuquira", "Campanário", "Campanha", "Campestre", "Campina Verde", "Campo Azul", "Campo Belo", "Campo do Meio", "Campo Florido", "Campos Altos", "Campos Gerais", "Cana Verde", "Canaã", "Canápolis", "Canaã dos Carajás", "Candeias", "Cantagalo", "Caparaó", "Capela Nova", "Capelinha", "Capetinga", "Capim Branco", "Capinópolis", "Capitão Andrade", "Capitão Enéas", "Capitólio", "Caputira", "Caraí", "Caranaíba", "Carandaí", "Carangola", "Caratinga", "Carbonita", "Careaçu", "Carlos Chagas", "Carmésia", "Carmo da Cachoeira", "Carmo da Mata", "Carmo de Minas", "Carmo do Cajuru", "Carmo do Paranaíba", "Carmo do Rio Claro", "Carmópolis de Minas", "Carneirinho", "Carrancas", "Carvalhópolis", "Carvalhos", "Casa Grande", "Cascalho Rico", "Cássia", "Cataguases", "Catas Altas", "Catas Altas da Noruega", "Catuji", "Catuti", "Caxambu", "Cedro do Abaeté", "Central de Minas", "Centralina", "Chácara", "Chalé", "Chapada do Norte", "Chapada Gaúcha", "Chiador", "Cipotânea", "Claraval", "Claro dos Poções", "Cláudio", "Coimbra", "Coluna", "Comendador Levy Gasparian", "Comercinho", "Conceição da Aparecida", "Conceição da Barra de Minas", "Conceição das Alagoas", "Conceição das Pedras", "Conceição de Ipanema", "Conceição do Mato Dentro", "Conceição do Pará", "Conceição do Rio Verde", "Conceição dos Ouros", "Cônego Marinho", "Confins", "Congonhas", "Congonhas do Norte", "Conquista", "Conselheiro Lafaiete", "Conselheiro Pena", "Consolação", "Contagem", "Coqueiral", "Coração de Jesus", "Cordisburgo", "Cordislândia", "Corinto", "Coroaci", "Coromandel", "Coronel Fabriciano", "Coronel Murta", "Coronel Pacheco", "Coronel Xavier Chaves", "Córrego Danta", "Córrego do Bom Jesus", "Córrego Fundo", "Córrego Novo", "Couto de Magalhães de Minas", "Crisólita", "Cristal do Sul", "Cristalina", "Cristália", "Cristiano Otoni", "Cristina", "Crucilândia", "Cruzeiro da Fortaleza", "Cruzília", "Cuparaque", "Curral de Dentro", "Curvelo", "Datas", "Delimont", "Delfim Moreira", "Delfinópolis", "Delta", "Descoberto", "Desterro de Entre Rios", "Desterro do Melo", "Diamantina", "Diogo de Vasconcelos", "Dionísio", "Divinésia", "Divino", "Divino das Laranjeiras", "Divinolândia de Minas", "Divinópolis", "Divisa Alegre", "Divisa Nova", "Divisópolis", "Dores de Campos", "Dores de Guanhães", "Dores do Indaiá", "Dores do Turvo", "Doresópolis", "Douradoquara", "Durandé", "Elói Mendes", "Engenheiro Caldas", "Engenheiro Navarro", "Entre Folhas", "Entre Rios de Minas", "Ervália", "Esmeraldas", "Espera Feliz", "Espinosa", "Espírito Santo do Dourado", "Estiva", "Estrela Dalva", "Estrela do Indaiá", "Estrela do Sul", "Eugenópolis", "Ewbank da Câmara", "Extrema", "Fama", "Faria Lemos", "Felício dos Santos", "Felisburgo", "Felixlândia", "Fernandes Tourinho", "Ferros", "Fervedouro", "Florestal", "Formiga", "Formoso", "Fortaleza de Minas", "Fortuna de Minas", "Francisco Badaró", "Francisco Dumont", "Francisco Sá", "Franchicópolis", "Frei Gaspar", "Frei Inocêncio", "Frei Lagonegro", "Fronteira", "Fronteira dos Vales", "Fruta de Leite", "Frutal", "Funilândia", "Galileia", "Gameleiras", "Glicério", "Glaucilândia", "Goiabeira", "Goianá", "Gonçalves", "Gonzaga", "Gouveia", "Governador Valadares", "Grão Mogol", "Grupiara", "Guanhães", "Guapé", "Guaraciaba", "Guaraciama", "Guaranésia", "Guarani", "Guarará", "Guarda-Mor", "Guaxupé", "Guidoval", "Guimarânia", "Guiricema", "Guricema", "Guro", "Ibiá", "Ibiaí", "Ibiracatu", "Ibiraci", "Ibirité", "Ibitiúra de Minas", "Ibituruna", "Icaraí de Minas", "Igarapé", "Igaratinga", "Iguatama", "Ijaci", "Ilicínea", "Imbé de Minas", "Inconfidentes", "Indaiabira", "Independência", "Inhapim", "Inhaúma", "Inimutaba", "Ipaba", "Ipanema", "Ipatinga", "Ipiaçu", "Ipuiúna", "Iraí de Minas", "Itabira", "Itabirinha", "Itabirito", "Itacambira", "Itacarambi", "Itaguara", "Itaipé", "Itajubá", "Itamarandiba", "Itamarati de Minas", "Itambacuri", "Itambé do Mato Dentro", "Itamogi", "Itamonte", "Itanhandu", "Itanhomi", "Itaobim", "Itapagipe", "Itapecerica", "Itapeva", "Itatiaiçu", "Itaú de Minas", "Itaúna", "Itaverava", "Itinga", "Itueta", "Ituiutaba", "Itumirim", "Iturama", "Itutinga", "Jaboticatubas", "Jacinto", "Jacuí", "Jacutinga", "Jaguaraçu", "Jaíba", "Jampruca", "Januária", "Japaraíba", "Japonvar", "Jeceaba", "Jenipapo de Minas", "Jequeri", "Jequitaí", "Jequitibá", "Jequitinhonha", "Jesuânia", "Joaíma", "Joanésia", "João Monlevade", "João Pinheiro", "Joaquim Felício", "Jordânia", "José Gonçalves de Minas", "José Raydan", "Josenópolis", "Juatuba", "Juiz de Fora", "Juramento", "Juruaia", "Juvenília", "Ladainha", "Lagamar", "Lagoa da Prata", "Lagoa dos Patos", "Lagoa Dourada", "Lagoa Formosa", "Lagoa Grande", "Lagoa Santa", "Lajinha", "Lambari", "Lamim", "Laranjal", "Lassance", "Lavras", "Leandro Ferreira", "Leme do Prado", "Leopoldina", "Liberdade", "Lima Duarte", "Limeira do Oeste", "Lontra", "Luisburgo", "Luislândia", "Luminárias", "Luz", "Machacalis", "Machado", "Madre de Deus de Minas", "Malacacheta", "Mamonas", "Manga", "Manhuaçu", "Manhumirim", "Mara Rosa", "Mantena", "Maravilhas", "Mar de Espanha", "Maria da Fé", "Mariana", "Marilac", "Mário Campos", "Marliéria", "Marmelópolis", "Martinho Campos", "Martins Soares", "Mata Verde", "Materlândia", "Mateus Leme", "Mathias Lobato", "Matias Barbosa", "Matias Cardoso", "Matipó", "Mato Verde", "Matozinhos", "Matutina", "Medeiros", "Medina", "Melguer", "Mendes Pimentel", "Mercês", "Merces", "Minas Novas", "Minduri", "Mirabela", "Miradouro", "Miraí", "Miravânia", "Moeda", "Moema", "Monjolos", "Monsenhor Paulo", "Montalvânia", "Monte Alegre de Minas", "Monte Azul", "Monte Belo", "Monte Carmelo", "Monte Formoso", "Monte Santo de Minas", "Monte Sião", "Montes Claros", "Montezuma", "Morada Nova de Minas", "Moreira Sales", "Morro da Garça", "Morro do Pilar", "Munhoz", "Muriaé", "Mutum", "Muzambinho", "Nacip Raydan", "Nanuque", "Naque", "Natalândia", "Natércia", "Nazareno", "Nepomuceno", "Ninheira", "Nova Belém", "Nova Era", "Nova Lima", "Nova Módica", "Nova Ponte", "Nova Porteirinha", "Nova Resende", "Nova Serrana", "Nova União", "Novo Cruzeiro", "Novo Oriente de Minas", "Novorizonte", "Olaria", "Olhos-d'Água", "Olímpio Noronha", "Oliveira", "Oliveira Fortes", "Onça de Pitangui", "Oratórios", "Orizânia", "Ouro Branco", "Ouro Fino", "Ouro Preto", "Ouro Verde de Minas", "Padre Carvalho", "Padre Paraíso", "Painel", "Pai Pedro", "Paineiras", "Pains", "Paiva", "Palma", "Palmópolis", "Papagaios", "Pará de Minas", "Paracatu", "Paraguaçu", "Paraisópolis", "Paraopeba", "Passabém", "Passa Quatro", "Passa Tempo", "Passa Vinte", "Passos", "Patis", "Patos de Minas", "Patrocínio", "Patrocínio do Muriaé", "Paula Cândido", "Paulistas", "Pavão", "Peçanha", "Pedra Azul", "Pedra Bonita", "Pedra do Anta", "Pedra do Indaiá", "Pedra Dourada", "Pedralva", "Pedras de Maria da Cruz", "Pedrinópolis", "Pedro Leopoldo", "Pedro Teixeira", "Pequeri", "Pequi", "Perdigão", "Perdizes", "Perdões", "Periquito", "Pescador", "Piau", "Piedade de Caratinga", "Piedade de Ponte Nova", "Piedade do Rio Grande", "Piedade dos Gerais", "Pimenta", "Pingo-d'Água", "Pinheiros", "Pintópolis", "Piratininga", "Piranga", "Piranguçu", "Piranguinho", "Pirapetinga", "Pirapora", "Piraúba", "Pitangui", "Piumhi", "Planura", "Poço Fundo", "Poços de Caldas", "Pocrane", "Pompéu", "Ponte Nova", "Ponto Chique", "Ponto dos Volantes", "Porteirinha", "Porto Firme", "Poté", "Pouso Alegre", "Pouso Alto", "Prados", "Prata", "Pratápolis", "Pratinha", "Prentor", "Presidente Bernardes", "Presidente Juscelino", "Presidente Kubitschek", "Presidente Olegário", "Prudente de Morais", "Quartel Geral", "Queluzito", "Raposos", "Raul Soares", "Recreio", "Reduto", "Resende Costa", "Resplendor", "Ressaquinha", "Riachinho", "Riacho dos Machados", "Ribeirão das Neves", "Rio Acima", "Rio Casca", "Rio do Prado", "Rio Doce", "Rio Espera", "Rio Manso", "Rio Novo", "Rio Paranaíba", "Rio Pardo de Minas", "Rio Piracicaba", "Rio Pomba", "Rio Preto", "Rio Vermelho", "Ritápolis", "Rochedo de Minas", "Rodeiro", "Rolim de Moura", "Romaria", "Rosário da Limeira", "Rubelita", "Rubim", "Sabará", "Sabinópolis", "Sacramento", "Salinas", "Salto da Divisa", "Santa Bárbara", "Santa Bárbara do Leste", "Santa Bárbara do Monte Verde", "Santa Bárbara do Tugúrio", "Santa Cruz de Minas", "Santa Cruz de Salinas", "Santa Cruz do Escalvado", "Santa Efigênia de Minas", "Santa Fé de Minas", "Santa Helena de Minas", "Santa Juliana", "Santa Luzia", "Santa Margarida", "Santa Maria de Itabira", "Santa Maria do Salto", "Santa Maria do Suaçuí", "Santa Rita de Caldas", "Santa Rita de Ibitipoca", "Santa Rita de Jacutinga", "Santa Rita de Minas", "Santa Rita do Itueto", "Santa Rita do Sapucaí", "Santa Rosa da Serra", "Santa Vitória", "Santana da Vargem", "Santana de Cataguases", "Santana de Pirapama", "Santana do Deserto", "Santana do Garambéu", "Santana do Jacaré", "Santana do Manhuaçu", "Santana do Paraíso", "Santana do Riacho", "Santana dos Montes", "Santo Antônio do Amparo", "Santo Antônio do Aventureiro", "Santo Antônio do Grama", "Santo Antônio do Itambé", "Santo Antônio do Monte", "Santo Antônio do Retiro", "Santo Antônio do Rio Abaixo", "Santo Hipólito", "Santos Dumont", "São Bento Abade", "São Brás do Suaçuí", "São Domingos das Dores", "São Domingos do Prata", "São Félix de Minas", "São Francisco", "São Francisco de Paula", "São Francisco de Sales", "São Francisco do Glória", "São Geraldo", "São Geraldo da Piedade", "São Geraldo do Baixio", "São Gonçalo do Abaeté", "São Gonçalo do Pará", "São Gonçalo do Rio Abaixo", "São Gonçalo do Rio Preto", "São Gonçalo do Sapucaí", "São Gotardo", "São João Batista do Glória", "São João da Lagoa", "São João da Mata", "São João da Ponte", "São João das Missões", "São João del Rei", "São João do Manhuaçu", "São João do Manteninha", "São João do Oriente", "São João do Pacuí", "São João do Paraíso", "São João Evangelista", "São João Nepomuceno", "São Joaquim de Bicas", "São José da Barra", "São José da Lapa", "São José da Safira", "São José da Varginha", "São José do Alegre", "São José do Goiabal", "São José do Jacuri", "São José do Mantimento", "São Lourenço", "São Miguel do Anta", "São Pedro da União", "São Pedro dos Ferros", "São Pedro do Suaçuí", "São Romão", "São Roque de Minas", "São Sebastião da Bela Vista", "São Sebastião da Vargem Alegre", "São Sebastião do Anta", "São Sebastião do Maranhão", "São Sebastião do Oeste", "São Sebastião do Paraíso", "São Sebastião do Rio Preto", "São Sebastião do Rio Verde", "São Tiago", "São Tomás de Aquino", "São Vicente de Minas", "Sapucaí-Mirim", "Sardoá", "Sarzedo", "Sem-Peixe", "Senador Amaral", "Senador Cortes", "Senador Firmino", "Senador José Bento", "Senador Modestino Gonçalves", "Sericita", "Seritinga", "Serra Azul de Minas", "Serra da Saudade", "Serra dos Aimorés", "Serra do Salitre", "Serranos", "Serranópolis de Minas", "Serro", "Sete Lagoas", "Setubinha", "Silveirânia", "Simão Pereira", "Simonesia", "Sobrália", "Soledade de Minas", "Tabuleiro", "Taiobeiras", "Taparuba", "Tapira", "Tapiraí", "Taquaraçu de Minas", "Tarumirim", "Teixeiras", "Teófilo Otoni", "Timóteo", "Tiradentes", "Tiros", "Tocantins", "Tocos do Moji", "Toledo", "Tombos", "Três Corações", "Três Marias", "Três Pontas", "Tupaciguara", "Turmalina", "Turvolândia", "Ubá", "Ubaí", "Ubaporanga", "Uberaba", "Uberlândia", "Umburatiba", "Unaí", "União de Minas", "Uruana de Minas", "Urucânia", "Urucuia", "Vargem Bonita", "Vargem Grande do Rio Pardo", "Vargem Alegre", "Varginha", "Varjão de Minas", "Várzea da Palma", "Varzelândia", "Vazante", "Verdelândia", "Veredinha", "Veríssimo", "Vermelho Novo", "Vespasiano", "Viçosa", "Vieiras", "Virgem da Lapa", "Virgínia", "Virginópolis", "Virgolândia", "Visconde do Rio Branco", "Volta Grande", "Wenceslau Braz",
+      // Rodovias importantes que cruzam Minas Gerais
+      "BR-381", "BR-040", "BR-262", "BR-116", "BR-050", "BR-452", "Anel Rodoviário"
+    ];
 
-    // Dados de reserva
     const fallbackDrivers = [
       {
         id: "1",
@@ -167,9 +245,7 @@ html_content = """<!DOCTYPE html>
         type: "Plataforma Hidráulica - Leves e Suv",
         verified: true,
         desc: "Atendimento ultra rápido na região de BH. Equipamento novo, socorro 24h. Aceito PIX e Cartão.",
-        photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80",
-        lat: -19.9167,
-        lng: -43.9345
+        photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80"
       },
       {
         id: "2",
@@ -179,118 +255,60 @@ html_content = """<!DOCTYPE html>
         type: "Reboque Asa Delta e Plataforma",
         verified: true,
         desc: "Especialista em pane mecânica e remoções em rodovias. Chegada estimada de 20 a 40 minutos.",
-        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-        lat: -19.9321,
-        lng: -44.0539
+        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
       },
       {
         id: "3",
-        name: "Auto Socorro Silva",
-        phone: "31977778888",
-        region: "Nova Lima, Sabará e Centro",
+        name: "Auto Socorro Triângulo",
+        phone: "34977778888",
+        region: "Uberlândia / BR-050",
         type: "Veículos Leves e Utilitários",
         verified: false,
-        desc: "Socorro veicular rápido com preço justo. Atendimento prévio via WhatsApp.",
-        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-        lat: -19.9858,
-        lng: -43.8469
+        desc: "Socorro veicular rápido com preço justo no Triângulo Mineiro.",
+        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80"
       }
     ];
 
-    const baseLocations = [
-      "Belo Horizonte", "Contagem", "Betim", "Nova Lima", "Sabará",
-      "Ribeirão das Neves", "Santa Luzia", "Ibirité", "Vespasiano",
-      "Lagoa Santa", "Sete Lagoas", "Ouro Preto", "Itabirito",
-      "BR-381", "BR-040", "BR-262", "Anel Rodoviário"
-    ];
+    function getDrivers() {
+      const stored = localStorage.getItem('mg_drivers');
+      if (!stored) {
+        localStorage.setItem('mg_drivers', JSON.stringify(fallbackDrivers));
+        return fallbackDrivers;
+      }
+      return JSON.parse(stored);
+    }
 
-    let allDrivers = [];
-    let availableSuggestions = [...baseLocations];
-    let userLocation = null;
-    let isGpsAutoFilled = false; // Controla se o texto do campo veio do GPS
+    function saveDrivers(drivers) {
+      localStorage.setItem('mg_drivers', JSON.stringify(drivers));
+      render();
+    }
 
     function normalizeText(text) {
       if (!text) return "";
-      return text
-        .toString()
-        .normalize("NFD")
-        .replace(/[\\u0300-\\u036f]/g, "")
-        .toLowerCase()
-        .trim();
+      return text.toString().normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase().trim();
     }
 
-    function calculateDistanceKm(lat1, lon1, lat2, lon2) {
-      if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
-      const R = 6371;
-      const dLat = (lat2 - lat1) * Math.PI / 180;
-      const dLon = (lon2 - lon1) * Math.PI / 180;
-      const a = 
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c;
-    }
+    function switchTab(tab) {
+      const clientView = document.getElementById('view-client');
+      const adminView = document.getElementById('view-admin');
+      const btnClient = document.getElementById('tab-client');
+      const btnAdmin = document.getElementById('tab-admin');
 
-    function loadDriversData() {
-      if (!GOOGLE_SHEET_CSV_URL) {
-        allDrivers = fallbackDrivers;
-        buildSuggestionsList();
-        renderClientCards(allDrivers);
-        return;
+      if (tab === 'client') {
+        clientView.classList.remove('hidden');
+        adminView.classList.add('hidden');
+        btnClient.className = "text-xs md:text-sm font-semibold px-3 py-1.5 rounded-lg bg-amber-400 text-black transition";
+        btnAdmin.className = "text-xs md:text-sm font-semibold px-3 py-1.5 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition";
+      } else {
+        clientView.classList.add('hidden');
+        adminView.classList.remove('hidden');
+        btnAdmin.className = "text-xs md:text-sm font-semibold px-3 py-1.5 rounded-lg bg-amber-400 text-black transition";
+        btnClient.className = "text-xs md:text-sm font-semibold px-3 py-1.5 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700 transition";
       }
-
-      Papa.parse(GOOGLE_SHEET_CSV_URL, {
-        download: true,
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-          if (results.data && results.data.length > 0) {
-            allDrivers = results.data.map((row, index) => ({
-              id: row.id || String(index + 1),
-              name: row.nome || "Motorista Parceiro",
-              phone: row.telefone || "",
-              region: row.regiao || "",
-              type: row.tipo || "Reboque Geral",
-              verified: normalizeText(row.verificado) === "sim",
-              desc: row.descricao || "Disponível para atendimento imediato.",
-              photo: row.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
-              lat: parseFloat(String(row.latitude || "").replace(",", ".")),
-              lng: parseFloat(String(row.longitude || "").replace(",", "."))
-            })).filter(d => d.name && d.phone);
-          } else {
-            allDrivers = fallbackDrivers;
-          }
-          buildSuggestionsList();
-          renderClientCards(allDrivers);
-        },
-        error: function(err) {
-          console.error("Erro ao carregar planilha:", err);
-          allDrivers = fallbackDrivers;
-          buildSuggestionsList();
-          renderClientCards(allDrivers);
-        }
-      });
-    }
-
-    function buildSuggestionsList() {
-      const set = new Set(baseLocations);
-      allDrivers.forEach(d => {
-        if (d.region) {
-          const parts = d.region.split(/[,\\/]|\\be\\b/i);
-          parts.forEach(p => {
-            const clean = p.trim();
-            if (clean.length > 2) set.add(clean);
-          });
-        }
-      });
-      availableSuggestions = Array.from(set).sort((a, b) => a.localeCompare(b));
+      render();
     }
 
     function handleSearchInput() {
-      // Se o usuário começar a digitar manualmente, desativa a trava do texto automático do GPS
-      isGpsAutoFilled = false;
-
       const input = document.getElementById('search-input');
       const clearBtn = document.getElementById('clear-search-btn');
       const suggestionsEl = document.getElementById('suggestions-list');
@@ -304,9 +322,10 @@ html_content = """<!DOCTYPE html>
       }
 
       if (query.length >= 1) {
-        const matches = availableSuggestions.filter(loc => 
+        // Filtra na lista completa de todas as cidades de MG + rodovias
+        const matches = allMinasGeraisCities.filter(loc => 
           normalizeText(loc).includes(query)
-        );
+        ).slice(0, 10); // Limita a 10 sugestões para performance rápida
 
         if (matches.length > 0) {
           suggestionsEl.innerHTML = matches.map(loc => `
@@ -329,7 +348,6 @@ html_content = """<!DOCTYPE html>
     }
 
     function selectSuggestion(locationName) {
-      isGpsAutoFilled = false;
       const input = document.getElementById('search-input');
       input.value = locationName;
       document.getElementById('suggestions-list').classList.add('hidden');
@@ -338,7 +356,6 @@ html_content = """<!DOCTYPE html>
     }
 
     function quickFilter(term) {
-      isGpsAutoFilled = false;
       const input = document.getElementById('search-input');
       input.value = term;
       document.getElementById('suggestions-list').classList.add('hidden');
@@ -347,7 +364,6 @@ html_content = """<!DOCTYPE html>
     }
 
     function clearSearch() {
-      isGpsAutoFilled = false;
       const input = document.getElementById('search-input');
       input.value = "";
       document.getElementById('suggestions-list').classList.add('hidden');
@@ -364,26 +380,13 @@ html_content = """<!DOCTYPE html>
 
     function filterDrivers() {
       const query = normalizeText(document.getElementById('search-input').value);
+      const drivers = getDrivers();
       
-      // Se o campo foi preenchido automaticamente pelo GPS, mostra todos ordenados por proximidade (sem esconder motoristas vizinhos)
-      let filtered = isGpsAutoFilled 
-        ? [...allDrivers]
-        : allDrivers.filter(d => 
-            normalizeText(d.name).includes(query) ||
-            normalizeText(d.region).includes(query) ||
-            normalizeText(d.type).includes(query)
-          );
-
-      if (userLocation) {
-        filtered = filtered.map(d => {
-          const dist = calculateDistanceKm(userLocation.lat, userLocation.lng, d.lat, d.lng);
-          return { ...d, distanceKm: dist };
-        }).sort((a, b) => {
-          if (a.distanceKm === null) return 1;
-          if (b.distanceKm === null) return -1;
-          return a.distanceKm - b.distanceKm;
-        });
-      }
+      const filtered = drivers.filter(d => 
+        normalizeText(d.name).includes(query) ||
+        normalizeText(d.region).includes(query) ||
+        normalizeText(d.type).includes(query)
+      );
 
       renderClientCards(filtered);
     }
@@ -397,8 +400,8 @@ html_content = """<!DOCTYPE html>
         listEl.innerHTML = `
           <div class="col-span-full py-12 text-center text-gray-500 bg-gray-800/20 rounded-2xl border border-gray-800">
             <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-2 text-gray-600"></i>
-            <p class="font-medium text-gray-300">Nenhum guincho encontrado para essa busca.</p>
-            <p class="text-xs mt-1">Tente limpar o filtro, usar um atalho rápido ou clicar em "Usar Meu GPS".</p>
+            <p class="font-medium text-gray-300">Nenhum guincho encontrado para essa região em MG.</p>
+            <p class="text-xs mt-1">Tente limpar a busca ou escolher um atalho rápido.</p>
           </div>
         `;
         lucide.createIcons();
@@ -407,8 +410,7 @@ html_content = """<!DOCTYPE html>
 
       listEl.innerHTML = drivers.map(d => {
         const cleanPhone = d.phone.replace(/\\D/g, '');
-        const distText = (typeof d.distanceKm === 'number') ? ` (distância estimada de ${d.distanceKm.toFixed(1)} km)` : '';
-        const message = encodeURIComponent(`Olá ${d.name}, vi seu contato no site Reboque 24h${distText} e preciso de socorro veicular!`);
+        const message = encodeURIComponent(`Olá ${d.name}, vi seu contato no site Reboque 24h MG e preciso de socorro veicular urgente!`);
         const waLink = `https://wa.me/55${cleanPhone}?text=${message}`;
 
         return `
@@ -434,12 +436,6 @@ html_content = """<!DOCTYPE html>
                     <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Verificado
                   </span>
                 ` : ''}
-
-                ${typeof d.distanceKm === 'number' ? `
-                  <span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-2.5 py-0.5 rounded-full font-semibold">
-                    <i data-lucide="navigation" class="w-3 h-3"></i> A aprox. ${d.distanceKm.toFixed(1)} km
-                  </span>
-                ` : ''}
               </div>
 
               <div class="space-y-2 text-xs text-gray-300 mb-4">
@@ -459,193 +455,94 @@ html_content = """<!DOCTYPE html>
       lucide.createIcons();
     }
 
-    // ================= LOCALIZAÇÃO ROBUSTA: GPS + REDE + IP =================
-    let locationRequestInProgress = false;
+    function renderAdminList() {
+      const listEl = document.getElementById('admin-drivers-list');
+      const drivers = getDrivers();
 
-    function setGpsStatus(message, type = "info") {
-      const status = document.getElementById('gps-status');
-      const styles = { info: "text-amber-400", success: "text-emerald-400", warning: "text-amber-300", error: "text-red-400" };
-      const icons = { info: "loader-2", success: "check-circle-2", warning: "map-pin", error: "alert-triangle" };
-      status.className = `mt-3 text-xs font-medium flex items-center gap-1.5 ${styles[type] || styles.info}`;
-      status.innerHTML = `<i data-lucide="${icons[type] || icons.info}" class="w-4 h-4 shrink-0"></i><span>${message}</span>`;
-      status.classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
+      if (drivers.length === 0) {
+        listEl.innerHTML = `<p class="text-xs text-gray-500">Nenhum motorista cadastrado no momento.</p>`;
+        return;
+      }
+
+      listEl.innerHTML = drivers.map(d => `
+        <div class="bg-gray-900 border border-gray-800 p-3.5 rounded-xl flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <img src="${d.photo}" class="w-10 h-10 rounded-full object-cover border border-amber-400/30">
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-bold text-sm text-white">${d.name}</h4>
+                ${d.verified ? '<span class="text-xs bg-amber-400/20 text-amber-400 px-2 py-0.5 rounded font-medium">Verificado</span>' : ''}
+              </div>
+              <p class="text-xs text-gray-400">${d.region} • WhatsApp: ${d.phone}</p>
+            </div>
+          </div>
+          <button onclick="handleDeleteDriver('${d.id}')" class="px-3 py-1.5 bg-red-600/20 hover:bg-red-600 text-red-400 hover:text-white border border-red-600/30 rounded-lg text-xs font-semibold transition">
+            Descadastrar
+          </button>
+        </div>
+      `).join('');
     }
 
-    function setGpsButtonLoading(loading) {
-      const btn = document.getElementById('btn-gps');
-      btn.disabled = loading;
-      btn.classList.toggle('opacity-70', loading);
-      btn.classList.toggle('cursor-not-allowed', loading);
-      btn.innerHTML = loading
-        ? `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Localizando...`
-        : `<i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS`;
-      if (window.lucide) lucide.createIcons();
-    }
+    function handleAddDriver(e) {
+      e.preventDefault();
+      const drivers = getDrivers();
 
-    function applyUserLocation(latitude, longitude, source, details = {}) {
-      userLocation = {
-        lat: Number(latitude), lng: Number(longitude), source,
-        accuracy: Number.isFinite(details.accuracy) ? details.accuracy : null,
-        city: details.city || "", region: details.region || ""
+      const newDriver = {
+        id: Date.now().toString(),
+        name: document.getElementById('adm-name').value,
+        phone: document.getElementById('adm-phone').value,
+        region: document.getElementById('adm-region').value,
+        type: document.getElementById('adm-type').value,
+        photo: document.getElementById('adm-photo').value || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
+        verified: document.getElementById('adm-verified').checked,
+        desc: document.getElementById('adm-desc').value || 'Disponível para atendimento imediato.'
       };
 
-      const searchInput = document.getElementById('search-input');
-      const clearBtn = document.getElementById('clear-search-btn');
-      const placeName = [details.city, details.region].filter(Boolean).join(" - ");
+      drivers.unshift(newDriver);
+      saveDrivers(drivers);
 
-      // Preenche o campo de busca com o nome da cidade para feedback visual imediato ao cliente
-      if (details.city) {
-        searchInput.value = details.city;
-        isGpsAutoFilled = true;
-        clearBtn.classList.remove('hidden');
-      } else if (placeName) {
-        searchInput.value = placeName;
-        isGpsAutoFilled = true;
-        clearBtn.classList.remove('hidden');
-      } else {
-        searchInput.value = "Localização atual (GPS)";
-        isGpsAutoFilled = true;
-        clearBtn.classList.remove('hidden');
-      }
-
-      document.getElementById('list-title').innerHTML =
-        `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos${placeName ? ` de ${placeName}` : " de Você"}`;
-
-      filterDrivers();
-      if (window.lucide) lucide.createIcons();
+      document.getElementById('add-driver-form').reset();
+      alert('Motorista cadastrado com sucesso!');
+      switchTab('client');
     }
 
-    async function fetchWithTimeout(url, timeoutMs = 7000) {
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), timeoutMs);
-      try {
-        return await fetch(url, { signal: controller.signal, headers: { "Accept": "application/json" } });
-      } finally {
-        clearTimeout(timer);
-      }
-    }
-
-    async function reverseGeocode(latitude, longitude) {
-      try {
-        const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=pt`;
-        const response = await fetchWithTimeout(url, 6000);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        return {
-          city: data.city || data.locality || "",
-          region: data.principalSubdivision || ""
-        };
-      } catch (error) {
-        console.warn("Falha ao identificar o nome da cidade:", error);
-        return { city: "", region: "" };
-      }
-    }
-
-    async function handleLocationSuccess(position) {
-      const latitude = position.coords.latitude;
-      const longitude = position.coords.longitude;
-      const accuracy = position.coords.accuracy;
-      const place = await reverseGeocode(latitude, longitude);
-
-      applyUserLocation(latitude, longitude, "gps", { accuracy, city: place.city, region: place.region });
-      setGpsButtonLoading(false);
-
-      const placeText = [place.city, place.region].filter(Boolean).join(" - ");
-      const accuracyText = Number.isFinite(accuracy) ? ` Precisão informada pelo aparelho: cerca de ${Math.round(accuracy)} m.` : "";
-      setGpsStatus(`Localização obtida pelo aparelho${placeText ? `: ${placeText}.` : "."}${accuracyText}`, "success");
-      locationRequestInProgress = false;
-    }
-
-    async function getLocationByIP() {
-      const providers = [
-        async () => {
-          const response = await fetchWithTimeout("https://ipwho.is/", 6000);
-          const data = await response.json();
-          if (!response.ok || data.success === false || !Number.isFinite(Number(data.latitude)) || !Number.isFinite(Number(data.longitude))) throw new Error("Resposta inválida do ipwho.is");
-          return { lat: Number(data.latitude), lng: Number(data.longitude), city: data.city || "", region: data.region || "" };
-        },
-        async () => {
-          const response = await fetchWithTimeout("https://ipapi.co/json/", 6000);
-          const data = await response.json();
-          if (!response.ok || data.error || !Number.isFinite(Number(data.latitude)) || !Number.isFinite(Number(data.longitude))) throw new Error("Resposta inválida do ipapi.co");
-          return { lat: Number(data.latitude), lng: Number(data.longitude), city: data.city || "", region: data.region || data.region_code || "" };
-        }
-      ];
-
-      for (const provider of providers) {
-        try { return await provider(); }
-        catch (error) { console.warn("Provedor de localização por IP falhou:", error); }
-      }
-      throw new Error("Os provedores de localização por IP não responderam.");
-    }
-
-    async function tryIPFallback(reason) {
-      setGpsStatus("Não foi possível obter o GPS. Tentando estimar sua região pela conexão...", "info");
-      try {
-        const location = await getLocationByIP();
-        applyUserLocation(location.lat, location.lng, "ip", { city: location.city, region: location.region });
-        setGpsButtonLoading(false);
-        const placeText = [location.city, location.region].filter(Boolean).join(" - ");
-        setGpsStatus(
-          `Localização aproximada pela internet${placeText ? `: ${placeText}` : ""}. As distâncias são estimativas. Você também pode confirmar sua cidade na busca.`,
-          "warning"
-        );
-      } catch (error) {
-        console.error("Falha nos métodos automáticos de localização:", reason, error);
-        setGpsButtonLoading(false);
-        setGpsStatus("Não conseguimos localizar você automaticamente. Digite sua cidade ou escolha um dos atalhos.", "error");
-      } finally {
-        locationRequestInProgress = false;
+    function handleDeleteDriver(id) {
+      if (confirm('Tem certeza que deseja descadastrar este motorista?')) {
+        const drivers = getDrivers().filter(d => d.id !== id);
+        saveDrivers(drivers);
       }
     }
 
     function useGPS() {
-      if (locationRequestInProgress) return;
-      locationRequestInProgress = true;
-      setGpsButtonLoading(true);
-      setGpsStatus("Solicitando a localização do aparelho. Quando o navegador perguntar, toque em Permitir.", "info");
+      const status = document.getElementById('gps-status');
+      status.innerText = "Obtendo sua localização...";
+      status.classList.remove('hidden');
 
-      if (!window.isSecureContext) {
-        tryIPFallback("O site não está em HTTPS");
-        return;
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            status.innerText = "Localização obtida! Exibindo prestadores próximos.";
+            document.getElementById('search-input').value = "Belo Horizonte";
+            filterDrivers();
+          },
+          (error) => {
+            status.innerText = "Não foi possível obter o GPS. Selecione sua cidade na busca ou nos atalhos.";
+          },
+          { enableHighAccuracy: false, timeout: 10000 }
+        );
+      } else {
+        status.innerText = "Geolocalização não suportada no seu navegador.";
       }
-      if (!("geolocation" in navigator)) {
-        tryIPFallback("Navegador sem suporte à Geolocation API");
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        handleLocationSuccess,
-        async (error) => {
-          console.warn("Tentativa principal de localização falhou:", error);
-
-          if (error.code === error.PERMISSION_DENIED) {
-            await tryIPFallback("Permissão de localização negada");
-            return;
-          }
-
-          setGpsStatus("Tentando localizar pela rede móvel ou Wi-Fi...", "info");
-          navigator.geolocation.getCurrentPosition(
-            handleLocationSuccess,
-            async (secondError) => {
-              console.warn("Tentativa alternativa do navegador falhou:", secondError);
-              await tryIPFallback(secondError);
-            },
-            { enableHighAccuracy: false, timeout: 12000, maximumAge: 120000 }
-          );
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
-      );
     }
 
-    function failGPS(error) {
-      tryIPFallback(error);
+    function render() {
+      filterDrivers();
+      renderAdminList();
+      if (window.lucide) lucide.createIcons();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      lucide.createIcons();
-      loadDriversData();
+      render();
     });
   </script>
 </body>
