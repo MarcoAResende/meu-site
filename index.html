@@ -72,7 +72,7 @@ html_content = r"""<!DOCTYPE html>
           <div class="relative flex-grow" id="search-container">
             <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-3.5 text-gray-400"></i>
             <input type="text" id="search-input" autocomplete="off"
-                   placeholder="Digite sua cidade ou rodovia (ex: Belo Horizonte, Uberlândia, Bom Despacho...)" 
+                   placeholder="Digite sua cidade ou rodovia (ex: Bom Despacho, Luz, Belo Horizonte...)" 
                    class="w-full pl-10 pr-9 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 transition"
                    oninput="handleSearchInput()"
                    onfocus="handleSearchInput()">
@@ -98,13 +98,13 @@ html_content = r"""<!DOCTYPE html>
           <span class="text-xs text-gray-400 font-medium flex items-center gap-1">
             <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Atalhos rápidos:
           </span>
+          <button onclick="quickFilter('Bom Despacho')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Bom Despacho</button>
+          <button onclick="quickFilter('Luz')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Luz</button>
           <button onclick="quickFilter('Belo Horizonte')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Belo Horizonte</button>
           <button onclick="quickFilter('Contagem')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Contagem</button>
-          <button onclick="quickFilter('Bom Despacho')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Bom Despacho</button>
           <button onclick="quickFilter('Uberlândia')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Uberlândia</button>
           <button onclick="quickFilter('BR-381')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-381</button>
-          <button onclick="quickFilter('BR-040')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-040</button>
-          <button onclick="quickFilter('Anel Rodoviário')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">Anel Rodoviário</button>
+          <button onclick="quickFilter('BR-262')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-262</button>
         </div>
         
         <!-- Mensagem de status do GPS / Busca -->
@@ -157,48 +157,54 @@ html_content = r"""<!DOCTYPE html>
     // Link CSV publicado da sua planilha do Google
     const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb5VGzR0HEYJmPMknPD3wpMAlb2pSyFbZ5VzsbgBbmhZEmjzwW8r7KMw1xucLkmjf23UkRSp7PipKb/pub?gid=0&single=true&output=csv";
 
-    // Dados de reserva
+    // Dados de reserva caso o CSV falhe
     const fallbackDrivers = [
       {
         id: "1",
         name: "Carlos Guincho 24h",
         phone: "31998765432",
-        region: "Belo Horizonte / BR-381 / Anel Rodoviário",
+        region: "Belo Horizonte / BR-381",
         type: "Plataforma Hidráulica - Leves e Suv",
         verified: true,
-        desc: "Atendimento ultra rápido na região de BH. Equipamento novo, socorro 24h. Aceito PIX e Cartão.",
+        desc: "Atendimento ultra rápido na região de BH. Equipamento novo, socorro 24h.",
         photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80",
         lat: -19.9167,
         lng: -43.9345
       },
       {
         id: "2",
-        name: "Reboque Resgate Express",
-        phone: "31987654321",
-        region: "Contagem, Betim e BR-040",
+        name: "Reboque Luz Resgate",
+        phone: "37988887777",
+        region: "Luz / Bom Despacho / BR-262",
         type: "Reboque Asa Delta e Plataforma",
         verified: true,
-        desc: "Especialista em pane mecânica e remoções em rodovias. Chegada estimada de 20 a 40 minutos.",
+        desc: "Atendimento ágil em Luz, Bom Despacho e região da BR-262.",
         photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-        lat: -19.9321,
-        lng: -44.0539
-      },
-      {
-        id: "3",
-        name: "Auto Socorro Silva",
-        phone: "31977778888",
-        region: "Bom Despacho / Nova Lima",
-        type: "Veículos Leves e Utilitários",
-        verified: false,
-        desc: "Socorro veicular rápido com preço justo. Atendimento prévio via WhatsApp.",
-        photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-        lat: -19.7368,
-        lng: -45.2587
+        lat: -19.7825,
+        lng: -45.6842
       }
     ];
 
+    // Mapa fixo de coordenadas de referência para cálculo imediato de proximidade por cidade
+    const mgCityCoords = {
+      "bom despacho": { lat: -19.7368, lng: -45.2587 },
+      "luz": { lat: -19.7825, lng: -45.6842 },
+      "belo horizonte": { lat: -19.9167, lng: -43.9345 },
+      "contagem": { lat: -19.9321, lng: -44.0539 },
+      "betim": { lat: -19.9678, lng: -44.1983 },
+      "nova lima": { lat: -19.9858, lng: -43.8469 },
+      "uberlandia": { lat: -18.9186, lng: -48.2772 },
+      "uberaba": { lat: -19.7475, lng: -47.9317 },
+      "juiz de fora": { lat: -21.7642, lng: -43.3503 },
+      "montes claros": { lat: -16.735, lng: -43.8617 },
+      "divinopolis": { lat: -20.1467, lng: -44.8858 },
+      "sete lagoas": { lat: -19.4658, lng: -44.2467 },
+      "ipatinga": { lat: -19.4708, lng: -42.5303 },
+      "governador valadares": { lat: -18.8511, lng: -41.9494 }
+    };
+
     const baseLocations = [
-      "Belo Horizonte", "Contagem", "Betim", "Bom Despacho", "Uberlândia", "Juiz de Fora",
+      "Belo Horizonte", "Contagem", "Betim", "Bom Despacho", "Luz", "Uberlândia", "Juiz de Fora",
       "Montes Claros", "Uberaba", "Governador Valadares", "Ipatinga", "Sete Lagoas",
       "Divinópolis", "Santa Luzia", "Ibirité", "Poços de Caldas", "Patos de Minas",
       "Pouso Alegre", "Teófilo Otoni", "Barbacena", "Sabará", "Varginha",
@@ -221,7 +227,6 @@ html_content = r"""<!DOCTYPE html>
     let allDrivers = [];
     let availableSuggestions = [...baseLocations];
     let userLocation = null;
-    let isGpsAutoFilled = false;
 
     function normalizeText(text) {
       if (!text) return "";
@@ -317,8 +322,6 @@ html_content = r"""<!DOCTYPE html>
     }
 
     function handleSearchInput() {
-      isGpsAutoFilled = false;
-
       const input = document.getElementById('search-input');
       const clearBtn = document.getElementById('clear-search-btn');
       const suggestionsEl = document.getElementById('suggestions-list');
@@ -329,6 +332,22 @@ html_content = r"""<!DOCTYPE html>
         clearBtn.classList.remove('hidden');
       } else {
         clearBtn.classList.add('hidden');
+        userLocation = null;
+      }
+
+      // Se o que foi digitado corresponde a uma cidade com coordenadas conhecidas, define o ponto central
+      if (mgCityCoords[query]) {
+        userLocation = {
+          lat: mgCityCoords[query].lat,
+          lng: mgCityCoords[query].lng,
+          source: 'typed-city',
+          city: rawValue
+        };
+      } else {
+        // Se limpou ou mudou para algo sem coordenada exata prévia, mantém se for GPS, senão anula
+        if (userLocation && userLocation.source === 'typed-city') {
+          userLocation = null;
+        }
       }
 
       if (query.length >= 1) {
@@ -370,27 +389,34 @@ html_content = r"""<!DOCTYPE html>
     }
 
     function selectSuggestion(locationName) {
-      isGpsAutoFilled = false;
       const input = document.getElementById('search-input');
       input.value = locationName;
       document.getElementById('suggestions-list').classList.add('hidden');
       document.getElementById('clear-search-btn').classList.remove('hidden');
+
+      const normName = normalizeText(locationName);
+      if (mgCityCoords[normName]) {
+        userLocation = {
+          lat: mgCityCoords[normName].lat,
+          lng: mgCityCoords[normName].lng,
+          source: 'selected-city',
+          city: locationName
+        };
+      } else {
+        userLocation = null;
+      }
+
       filterDrivers();
     }
 
     function quickFilter(term) {
-      isGpsAutoFilled = false;
-      const input = document.getElementById('search-input');
-      input.value = term;
-      document.getElementById('suggestions-list').classList.add('hidden');
-      document.getElementById('clear-search-btn').classList.remove('hidden');
-      filterDrivers();
+      selectSuggestion(term);
     }
 
     function clearSearch() {
-      isGpsAutoFilled = false;
       const input = document.getElementById('search-input');
       input.value = "";
+      userLocation = null;
       document.getElementById('suggestions-list').classList.add('hidden');
       document.getElementById('clear-search-btn').classList.add('hidden');
       filterDrivers();
@@ -403,11 +429,12 @@ html_content = r"""<!DOCTYPE html>
       }
     });
 
-    // ================= ORDENAÇÃO INTELIGENTE POR PROXIMIDADE =================
+    // ================= ORDENAÇÃO POR PROXIMIDADE GEOGRÁFICA (KM) =================
     function filterDrivers() {
       const query = normalizeText(document.getElementById('search-input').value);
       
-      // Se tiver GPS ativo, calcula distância geográfica real (em km)
+      // Se tivermos coordenadas de referência (seja por GPS ou por cidade digitada/selecionada),
+      // ordenamos TODOS os motoristas por proximidade real em quilômetros!
       if (userLocation) {
         let filtered = allDrivers.map(d => {
           const dist = calculateDistanceKm(userLocation.lat, userLocation.lng, d.lat, d.lng);
@@ -417,40 +444,28 @@ html_content = r"""<!DOCTYPE html>
           if (b.distanceKm === null) return -1;
           return a.distanceKm - b.distanceKm;
         });
+        
+        const titleText = userLocation.city ? ` de ${userLocation.city}` : " de Você";
+        document.getElementById('list-title').innerHTML = `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos${titleText}`;
         renderClientCards(filtered);
         return;
       }
 
-      // Se o usuário digitou ou escolheu uma cidade/região na busca:
-      // 1º Prioridade: Motoristas que atendem exatamente à cidade digitada.
-      // 2º Garantia: Se não houver motorista exato na cidade, mostra os demais motoristas da frota ordenados para nunca ficar vazio.
-      let exactMatches = [];
-      let otherDrivers = [];
+      // Caso contrário, se for busca livre por texto sem cidade mapeada:
+      document.getElementById('list-title').innerHTML = `<i data-lucide="truck" class="w-5 h-5 text-amber-400"></i> Motoristas Disponíveis`;
+      
+      let filtered = allDrivers.filter(d => 
+        normalizeText(d.name).includes(query) ||
+        normalizeText(d.region).includes(query) ||
+        normalizeText(d.type).includes(query)
+      );
 
-      allDrivers.forEach(d => {
-        const normRegion = normalizeText(d.region);
-        const normName = normalizeText(d.name);
-        const normType = normalizeText(d.type);
-
-        if (query === "" || normRegion.includes(query) || normName.includes(query) || normType.includes(query)) {
-          // Se a região bate exatamente com a busca do usuário
-          if (query !== "" && normRegion.includes(query)) {
-            exactMatches.push({ ...d, matchScore: 1 });
-          } else {
-            otherDrivers.push({ ...d, matchScore: 2 });
-          }
-        }
-      });
-
-      // Ordena colocando os correspondentes exatos primeiro, seguidos dos demais prestadores disponíveis
-      let sortedDrivers = [...exactMatches, ...otherDrivers];
-
-      // Se o usuário digitou algo e não achou exato, garante que mostre os motoristas cadastrados para não zerar a tela
-      if (sortedDrivers.length === 0 && query !== "") {
-        sortedDrivers = allDrivers.map(d => ({ ...d, matchScore: 3 }));
+      // Garante que nunca fique vazio: se a busca não retornar exato, exibe todos os motoristas
+      if (filtered.length === 0 && query !== "") {
+        filtered = [...allDrivers];
       }
 
-      renderClientCards(sortedDrivers);
+      renderClientCards(filtered);
     }
 
     function renderClientCards(drivers) {
@@ -567,12 +582,7 @@ html_content = r"""<!DOCTYPE html>
         searchInput.value = "Localização atual (GPS)";
       }
 
-      isGpsAutoFilled = true;
       clearBtn.classList.remove('hidden');
-
-      document.getElementById('list-title').innerHTML =
-        `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos${placeName ? ` de ${placeName}` : " de Você"}`;
-
       filterDrivers();
       if (window.lucide) lucide.createIcons();
     }
