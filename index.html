@@ -43,15 +43,15 @@ html_content = r"""<!DOCTYPE html>
 
   <!-- Tailwind CSS CDN -->
 
-  <script src="https\://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- Lucide Icons -->
 
-  <script src="https\://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- PapaParse para leitura segura de CSV do Google Planilhas -->
 
-  <script src="https\://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
 
 
@@ -285,7 +285,7 @@ html_content = r"""<!DOCTYPE html>
 
     // Link CSV publicado da sua planilha do Google
 
-    const GOOGLE_SHEET_CSV_URL = "https\://docs.google.com/spreadsheets/d/e/2PACX-1vQb5VGzR0HEYJmPMknPD3wpMAlb2pSyFbZ5VzsbgBbmhZEmjzwW8r7KMw1xucLkmjf23UkRSp7PipKb/pub?gid=0&single=true&output=csv";
+    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb5VGzR0HEYJmPMknPD3wpMAlb2pSyFbZ5VzsbgBbmhZEmjzwW8r7KMw1xucLkmjf23UkRSp7PipKb/pub?gid=0&single=true&output=csv";
 
 
 
@@ -309,7 +309,7 @@ html_content = r"""<!DOCTYPE html>
 
         desc: "Atendimento ultra rápido na região de BH. Equipamento novo, socorro 24h.",
 
-        photo: "https\://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80",
+        photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80",
 
         lat: -19.9167,
 
@@ -333,7 +333,7 @@ html_content = r"""<!DOCTYPE html>
 
         desc: "Atendimento ágil em Luz, Bom Despacho e região da BR-262.",
 
-        photo: "https\://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
 
         lat: -19.7825,
 
@@ -528,7 +528,7 @@ html_content = r"""<!DOCTYPE html>
 
               desc: row.descricao || "Disponível para atendimento imediato.",
 
-              photo: row.foto || "https\://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+              photo: row.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
 
               lat: parseFloat(String(row.latitude || "").replace(",", ".")),
 
@@ -811,7 +811,7 @@ html_content = r"""<!DOCTYPE html>
 
         const message = encodeURIComponent(`Olá ${d.name}, vi seu contato no site Reboque 24h${distText} e preciso de socorro veicular!`);
 
-        const waLink = `https\://wa.me/55${cleanPhone}?text=${message}`;
+        const waLink = `https://wa.me/55${cleanPhone}?text=${message}`;
 
 
 
@@ -827,7 +827,7 @@ html_content = r"""<!DOCTYPE html>
 
                   <img src="${d.photo}" alt="${d.name}" 
 
-                       onerror="this.src='https\://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'"
+                       onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'"
 
                        class="w-12 h-12 rounded-full object-cover border border-amber-400/40 shrink-0">
 
@@ -1047,7 +1047,7 @@ html_content = r"""<!DOCTYPE html>
 
         async () => {
 
-          const url = `https\://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=pt`;
+          const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=pt`;
 
           const response = await fetchWithTimeout(url, 6500);
 
@@ -1073,7 +1073,7 @@ html_content = r"""<!DOCTYPE html>
 
         async () => {
 
-          const url = `https\://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=10&addressdetails=1&accept-language=pt-BR`;
+          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=10&addressdetails=1&accept-language=pt-BR`;
 
           const response = await fetchWithTimeout(url, 6500);
 
@@ -1159,7 +1159,7 @@ html_content = r"""<!DOCTYPE html>
 
         async () => {
 
-          const response = await fetchWithTimeout("https\://ipwho.is/", 6000);
+          const response = await fetchWithTimeout("https://ipwho.is/", 6000);
 
           const data = await response.json();
 
@@ -1171,7 +1171,7 @@ html_content = r"""<!DOCTYPE html>
 
         async () => {
 
-          const response = await fetchWithTimeout("https\://ipapi.co/json/", 6000);
+          const response = await fetchWithTimeout("https://ipapi.co/json/", 6000);
 
           const data = await response.json();
 
