@@ -1,5 +1,3 @@
-# gerar_site.py
-
 html_content = r"""<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -93,19 +91,6 @@ html_content = r"""<!DOCTYPE html>
           </button>
         </div>
 
-        <!-- Atalhos Rápidos -->
-        <div id="quick-shortcuts" class="flex flex-wrap items-center gap-2 pt-2">
-          <span class="text-xs text-gray-400 font-medium flex items-center gap-1">
-            <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Atalhos rápidos:
-          </span>
-          <button onclick="quickFilter('Bom Despacho')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Bom Despacho</button>
-          <button onclick="quickFilter('Luz')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Luz</button>
-          <button onclick="quickFilter('Belo Horizonte')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Belo Horizonte</button>
-          <button onclick="quickFilter('Contagem')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Contagem</button>
-          <button onclick="quickFilter('Uberlândia')" class="text-xs bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 px-3 py-1.5 rounded-lg transition">Uberlândia</button>
-          <button onclick="quickFilter('BR-381')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-381</button>
-          <button onclick="quickFilter('BR-262')" class="text-xs bg-gray-800 hover:bg-gray-700 text-amber-400 border border-gray-700 px-3 py-1.5 rounded-lg transition font-semibold">BR-262</button>
-        </div>
         
         <!-- Mensagem de status do GPS / Busca -->
         <div id="gps-status" class="mt-3 text-xs font-medium hidden flex items-center gap-1.5"></div>
@@ -321,16 +306,9 @@ html_content = r"""<!DOCTYPE html>
       availableSuggestions = Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
     }
 
-    // Esconde os atalhos quando uma cidade identificada está preenchida.
-    function updateQuickShortcuts() {
-      const shortcuts = document.getElementById('quick-shortcuts');
-      const searchInput = document.getElementById('search-input');
-      if (!shortcuts || !searchInput) return;
-      const cityIdentified = Boolean(userLocation && userLocation.city && searchInput.value.trim());
-      shortcuts.classList.toggle('hidden', cityIdentified);
-    }
 
     function handleSearchInput() {
+      hideGpsStatus();
       const input = document.getElementById('search-input');
       const clearBtn = document.getElementById('clear-search-btn');
       const suggestionsEl = document.getElementById('suggestions-list');
@@ -399,11 +377,11 @@ html_content = r"""<!DOCTYPE html>
         suggestionsEl.classList.add('hidden');
       }
 
-      updateQuickShortcuts();
       filterDrivers();
     }
 
     function selectSuggestion(locationName) {
+      hideGpsStatus();
       const input = document.getElementById('search-input');
       input.value = locationName;
       document.getElementById('suggestions-list').classList.add('hidden');
@@ -421,21 +399,18 @@ html_content = r"""<!DOCTYPE html>
         userLocation = null;
       }
 
-      updateQuickShortcuts();
       filterDrivers();
     }
 
-    function quickFilter(term) {
-      selectSuggestion(term);
-    }
 
     function clearSearch() {
+      hideGpsStatus();
       const input = document.getElementById('search-input');
       input.value = "";
       userLocation = null;
       document.getElementById('suggestions-list').classList.add('hidden');
       document.getElementById('clear-search-btn').classList.add('hidden');
-      updateQuickShortcuts();
+
       filterDrivers();
     }
 
@@ -495,7 +470,7 @@ html_content = r"""<!DOCTYPE html>
           <div class="col-span-full py-12 text-center text-gray-500 bg-gray-800/20 rounded-2xl border border-gray-800">
             <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-2 text-gray-600"></i>
             <p class="font-medium text-gray-300">Nenhum guincho encontrado para essa busca.</p>
-            <p class="text-xs mt-1">Tente limpar o filtro, usar um atalho rápido ou clicar em "Usar Meu GPS".</p>
+            <p class="text-xs mt-1">Tente limpar a busca ou clicar em "Usar Meu GPS".</p>
           </div>
         `;
         if (window.lucide) lucide.createIcons();
@@ -559,6 +534,10 @@ html_content = r"""<!DOCTYPE html>
     // ================= LOCALIZAÇÃO GPS =================
     let locationRequestInProgress = false;
 
+    function hideGpsStatus() {
+      document.getElementById("gps-status").classList.add("hidden");
+    }
+
     function setGpsStatus(message, type = "info") {
       const status = document.getElementById('gps-status');
       const styles = { info: "text-amber-400", success: "text-emerald-400", warning: "text-amber-300", error: "text-red-400" };
@@ -601,7 +580,7 @@ html_content = r"""<!DOCTYPE html>
       }
 
       clearBtn.classList.remove('hidden');
-      updateQuickShortcuts();
+
       filterDrivers();
       if (window.lucide) lucide.createIcons();
     }
@@ -665,7 +644,11 @@ html_content = r"""<!DOCTYPE html>
       applyUserLocation(latitude, longitude, "gps", { accuracy, city: place.city, region: place.region });
       setGpsButtonLoading(false);
 
-      setGpsStatus("Localização obtida! Veja quais são os reboques mais perto de você.", "success");
+      if (place.city) {
+        setGpsStatus("Localização identificada. Veja quais os reboques mais perto de você.", "success");
+      } else {
+        hideGpsStatus();
+      }
       locationRequestInProgress = false;
     }
 
@@ -693,20 +676,20 @@ html_content = r"""<!DOCTYPE html>
     }
 
     async function tryIPFallback(reason) {
-      setGpsStatus("Não foi possível obter o GPS. Tentando estimar sua região pela conexão...", "info");
+      hideGpsStatus();
       try {
         const location = await getLocationByIP();
         applyUserLocation(location.lat, location.lng, "ip", { city: location.city, region: location.region });
         setGpsButtonLoading(false);
-        const placeText = [location.city, location.region].filter(Boolean).join(" - ");
-        setGpsStatus(
-          `Localização aproximada pela internet${placeText ? `: ${placeText}` : ""}. As distâncias são estimativas. Você também pode confirmar sua cidade na busca.`,
-          "warning"
-        );
+        if (location.city) {
+          setGpsStatus("Localização identificada. Veja quais os reboques mais perto de você.", "success");
+        } else {
+          hideGpsStatus();
+        }
       } catch (error) {
         console.error("Falha nos métodos automáticos de localização:", reason, error);
         setGpsButtonLoading(false);
-        setGpsStatus("Não conseguimos localizar você automaticamente. Digite sua cidade ou escolha um dos atalhos.", "error");
+        setGpsStatus("Não foi possível identificar sua localização. Digite sua cidade na busca.", "error");
       } finally {
         locationRequestInProgress = false;
       }
@@ -716,7 +699,7 @@ html_content = r"""<!DOCTYPE html>
       if (locationRequestInProgress) return;
       locationRequestInProgress = true;
       setGpsButtonLoading(true);
-      setGpsStatus("Solicitando a localização do aparelho. Quando o navegador perguntar, toque em Permitir.", "info");
+      hideGpsStatus();
 
       if (!window.isSecureContext) {
         tryIPFallback("O site não está em HTTPS");
@@ -737,7 +720,7 @@ html_content = r"""<!DOCTYPE html>
             return;
           }
 
-          setGpsStatus("Tentando localizar pela rede móvel ou Wi-Fi...", "info");
+          hideGpsStatus();
           navigator.geolocation.getCurrentPosition(
             handleLocationSuccess,
             async (secondError) => {
