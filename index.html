@@ -665,9 +665,7 @@ html_content = r"""<!DOCTYPE html>
       applyUserLocation(latitude, longitude, "gps", { accuracy, city: place.city, region: place.region });
       setGpsButtonLoading(false);
 
-      const placeText = [place.city, place.region].filter(Boolean).join(" - ");
-      const accuracyText = Number.isFinite(accuracy) ? ` Precisão informada pelo aparelho: cerca de ${Math.round(accuracy)} m.` : "";
-      setGpsStatus(`Localização obtida pelo aparelho${placeText ? `: ${placeText}.` : "."}${accuracyText}`, "success");
+      setGpsStatus("Localização obtida! Veja quais são os reboques mais perto de você.", "success");
       locationRequestInProgress = false;
     }
 
