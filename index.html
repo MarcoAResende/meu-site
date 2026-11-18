@@ -1,748 +1,1338 @@
 
 <html lang="pt-BR">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
+
+
   <!-- Google Search Console Verification -->
+
   <meta name="google-site-verification" content="fbo-uddacvB2mIU7hJjCIEZPg5w_r8PmP-I8AsDv214" />
 
+
+
   <!-- SEO Meta Tags -->
+
   <title>Reboque & Guincho 24h em Minas Gerais | Encontre Socorro Veicular Rápido</title>
+
   <meta name="description" content="Precisa de guincho ou reboque urgente em Minas Gerais? Conecte-se instantaneamente com prestadores de socorro veicular 24h em qualquer cidade mineira.">
+
   <meta name="keywords" content="guincho 24 horas minas gerais, reboque bh, socorro veicular mg, guincho rodovia br-381 br-040">
+
   <meta name="robots" content="index, follow">
-  
+
+
+
   <!-- OpenGraph / Social Media -->
+
   <meta property="og:title" content="Reboque 24h MG - Socorro Veicular Imediato">
+
   <meta property="og:description" content="Encontre o guincho mais próximo em qualquer cidade de Minas Gerais com contato direto via WhatsApp.">
+
   <meta property="og:type" content="website">
 
+
+
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https\://cdn.tailwindcss.com"></script>
+
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script src="https\://unpkg.com/lucide@latest"></script>
+
   <!-- PapaParse para leitura segura de CSV do Google Planilhas -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+  <script src="https\://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+
 
   <style>
+
     .bg-accent { background-color: #facc15; }
+
     .text-accent { color: #eab308; }
+
     .border-accent { border-color: #facc15; }
+
   </style>
+
 </head>
+
 <body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
 
+
+
   <!-- Header / Navigation -->
+
   <header class="bg-black/90 backdrop-blur border-b border-gray-800 sticky top-0 z-50">
+
     <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+
       <div class="flex items-center space-x-3">
+
         <div class="bg-amber-400 p-2 rounded-lg text-black font-black flex items-center gap-2">
+
           <i data-lucide="truck" class="w-6 h-6"></i>
+
           <span>REBOQUE24H</span>
+
         </div>
+
         <span class="text-xs font-semibold px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full">
+
           Socorro Rápido
+
         </span>
+
       </div>
 
+
+
       <div class="hidden sm:flex items-center gap-2 text-xs text-gray-400">
+
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+
         <span>Atendimento 24h Online</span>
+
       </div>
+
     </div>
+
   </header>
+
+
 
   <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6 space-y-6">
 
+
+
     <!-- ================= HERO & BUSCA ================= -->
+
     <section class="bg-gradient-to-br from-gray-800 to-gray-950 border border-gray-800 p-6 md:p-8 rounded-2xl shadow-xl">
+
       <div class="max-w-3xl">
+
         <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-2">
+
           Carro quebrou? Encontre um <span class="text-amber-400">Reboque 24h</span> agora.
+
         </h1>
+
         <p class="text-gray-400 text-sm md:text-base mb-6">
-          Conecte-se diretamente com motoristas perto de você.
+
+          Conecte-se diretamente com motoristas verificados perto de você. Sem intermediários, negociação rápida via WhatsApp.
+
         </p>
 
+
+
         <!-- Input de Localização com Autocomplete + Botão GPS -->
+
         <div class="flex flex-col sm:flex-row gap-3 mb-4">
+
           <div class="relative flex-grow" id="search-container">
+
             <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-3.5 text-gray-400"></i>
+
             <input type="text" id="search-input" autocomplete="off"
+
                    placeholder="Digite sua cidade ou rodovia (ex: Bom Despacho, Luz, Belo Horizonte...)" 
+
                    class="w-full pl-10 pr-9 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-amber-400 transition"
+
                    oninput="handleSearchInput()"
+
                    onfocus="handleSearchInput()">
-            
+
+
+
             <!-- Botão limpar busca -->
+
             <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-3.5 text-gray-400 hover:text-white">
+
               <i data-lucide="x" class="w-5 h-5"></i>
+
             </button>
 
+
+
             <!-- Lista suspensa de sugestões de cidades -->
+
             <ul id="suggestions-list" class="hidden absolute z-40 w-full mt-1 bg-gray-900 border border-gray-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto divide-y divide-gray-800">
+
               <!-- Sugestões inseridas via JS -->
+
             </ul>
+
           </div>
 
+
+
           <button id="btn-gps" onclick="useGPS()" class="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-black font-bold rounded-xl flex items-center justify-center gap-2 transition whitespace-nowrap shadow-lg">
+
             <i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS
+
           </button>
+
         </div>
 
-        
+
+
+
+
         <!-- Mensagem de status do GPS / Busca -->
+
         <div id="gps-status" class="mt-3 text-xs font-medium hidden flex items-center gap-1.5"></div>
+
       </div>
+
     </section>
+
+
 
     <!-- ================= LISTA DE MOTORISTAS ================= -->
+
     <section class="space-y-4">
+
       <div class="flex flex-wrap justify-between items-center gap-2">
+
         <h2 id="list-title" class="text-xl font-bold flex items-center gap-2">
+
           <i data-lucide="truck" class="w-5 h-5 text-amber-400"></i> Motoristas Disponíveis
+
         </h2>
+
         <span id="driver-count" class="text-xs bg-gray-800 px-3 py-1 rounded-full text-gray-400 border border-gray-700">Carregando...</span>
+
       </div>
+
+
 
       <div id="drivers-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
         <!-- Cards são renderizados via JS -->
+
       </div>
+
     </section>
 
+
+
     <!-- ================= INDICADORES DE QUALIDADE / SEO ================= -->
+
     <section class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center pt-6 border-t border-gray-800">
+
       <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+
         <p class="text-xs text-gray-400">Atendimento</p>
+
         <p class="font-bold text-amber-400 text-sm mt-0.5">24 Horas / 7 Dias</p>
+
       </div>
+
       <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+
         <p class="text-xs text-gray-400">Contatos Verificados</p>
+
         <p class="font-bold text-amber-400 text-sm mt-0.5">100% Direto</p>
+
       </div>
+
       <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+
         <p class="text-xs text-gray-400">Cobertura</p>
+
         <p class="font-bold text-amber-400 text-sm mt-0.5">853 Cidades de MG</p>
+
       </div>
+
       <div class="bg-gray-800/40 border border-gray-800 p-4 rounded-xl">
+
         <p class="text-xs text-gray-400">Taxa de Resposta</p>
+
         <p class="font-bold text-amber-400 text-sm mt-0.5">Imediata (Zap)</p>
+
       </div>
+
     </section>
+
+
 
   </main>
 
+
+
   <footer class="bg-black border-t border-gray-800 py-6 text-center text-xs text-gray-500 mt-12">
+
     <p>© 2026 Plataforma de Reboques 24h - Conectando motoristas e prestadores de socorro com segurança.</p>
+
   </footer>
 
-  <!-- Lógica da Aplicação -->
-  <script>
-    // Link CSV publicado da sua planilha do Google
-    const GOOGLE_SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQb5VGzR0HEYJmPMknPD3wpMAlb2pSyFbZ5VzsbgBbmhZEmjzwW8r7KMw1xucLkmjf23UkRSp7PipKb/pub?gid=0&single=true&output=csv";
 
-    // Dados de reserva caso o CSV falhe
+
+  <!-- Lógica da Aplicação -->
+
+  <script>
+
+    // Link CSV publicado da sua planilha do Google
+
+    const GOOGLE_SHEET_CSV_URL = "https\://docs.google.com/spreadsheets/d/e/2PACX-1vQb5VGzR0HEYJmPMknPD3wpMAlb2pSyFbZ5VzsbgBbmhZEmjzwW8r7KMw1xucLkmjf23UkRSp7PipKb/pub?gid=0&single=true&output=csv";
+
+
+
+    // Exemplos antigos (não são exibidos caso a planilha falhe)
+
     const fallbackDrivers = [
+
       {
+
         id: "1",
+
         name: "Carlos Guincho 24h",
+
         phone: "31998765432",
+
         region: "Belo Horizonte / BR-381",
+
         type: "Plataforma Hidráulica - Leves e Suv",
+
         verified: true,
+
         desc: "Atendimento ultra rápido na região de BH. Equipamento novo, socorro 24h.",
-        photo: "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80",
+
+        photo: "https\://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80",
+
         lat: -19.9167,
+
         lng: -43.9345
+
       },
+
       {
+
         id: "2",
+
         name: "Reboque Luz Resgate",
+
         phone: "37988887777",
+
         region: "Luz / Bom Despacho / BR-262",
+
         type: "Reboque Asa Delta e Plataforma",
+
         verified: true,
+
         desc: "Atendimento ágil em Luz, Bom Despacho e região da BR-262.",
-        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+
+        photo: "https\://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+
         lat: -19.7825,
+
         lng: -45.6842
+
       }
+
     ];
 
-    // Mapa fixo de coordenadas de referência para cálculo imediato de proximidade por cidade
-    const mgCityCoords = {
-      "bom despacho": { lat: -19.7368, lng: -45.2587 },
-      "luz": { lat: -19.7825, lng: -45.6842 },
-      "belo horizonte": { lat: -19.9167, lng: -43.9345 },
-      "contagem": { lat: -19.9321, lng: -44.0539 },
-      "betim": { lat: -19.9678, lng: -44.1983 },
-      "nova lima": { lat: -19.9858, lng: -43.8469 },
-      "uberlandia": { lat: -18.9186, lng: -48.2772 },
-      "uberaba": { lat: -19.7475, lng: -47.9317 },
-      "juiz de fora": { lat: -21.7642, lng: -43.3503 },
-      "montes claros": { lat: -16.735, lng: -43.8617 },
-      "divinopolis": { lat: -20.1467, lng: -44.8858 },
-      "sete lagoas": { lat: -19.4658, lng: -44.2467 },
-      "ipatinga": { lat: -19.4708, lng: -42.5303 },
-      "governador valadares": { lat: -18.8511, lng: -41.9494 }
-    };
+
+
+    // Coordenadas de todos os municípios de MG são carregadas de base pública
+    // Municipios-Brasileiros (kelvins): codigo_ibge, nome, latitude, longitude, codigo_uf
+    const mgCityCoords = Object.create(null);
+    let citiesLoaded = false;
+    let cityLoadPromise = null;
 
     const baseLocations = [
+
       "Belo Horizonte", "Contagem", "Betim", "Bom Despacho", "Luz", "Uberlândia", "Juiz de Fora",
+
       "Montes Claros", "Uberaba", "Governador Valadares", "Ipatinga", "Sete Lagoas",
+
       "Divinópolis", "Santa Luzia", "Ibirité", "Poços de Caldas", "Patos de Minas",
+
       "Pouso Alegre", "Teófilo Otoni", "Barbacena", "Sabará", "Varginha",
+
       "Conselheiro Lafaiete", "Vespasiano", "Itabira", "Araguari", "Passos",
+
       "Ubá", "Coronel Fabriciano", "Muriaé", "Nova Lima", "Ituiutaba", "Araxá",
+
       "Lavras", "Itajubá", "Itaúna", "Pará de Minas", "Paracatu", "Caratinga",
+
       "Nova Serrana", "São João del Rei", "Patrocínio", "Timóteo", "Manhuaçu",
+
       "Unaí", "Curvelo", "Alfenas", "João Monlevade", "Três Corações", "Viçosa",
+
       "Cataguases", "Ouro Preto", "Janaúba", "São Sebastião do Paraíso", "Januária",
+
       "Formiga", "Esmeraldas", "Pedro Leopoldo", "Lagoa Santa", "Mariana", "Frutal",
+
       "Ponte Nova", "Três Pontas", "São Francisco", "Pirapora", "Campo Belo",
+
       "Leopoldina", "Congonhas", "Guaxupé", "Lagoa da Prata", "Itabirito",
+
       "Bocaiúva", "Diamantina", "João Pinheiro", "São Lourenço", "Santos Dumont",
+
       "Caeté", "Santa Rita do Sapucaí", "Visconde do Rio Branco", "Machado",
+
       "Oliveira", "Salinas", "Andradas", "Brumadinho", "Nanuque", "Arcos",
+
       "Ouro Branco", "Várzea da Palma", "Capelinha", "Matozinhos", "Extrema",
+
       "BR-381", "BR-040", "BR-262", "BR-116", "BR-050", "BR-452", "Anel Rodoviário"
+
     ];
 
+
+
     let allDrivers = [];
+
     let availableSuggestions = [...baseLocations];
+
     let userLocation = null;
 
+
+
     function normalizeText(text) {
+
       if (!text) return "";
+
       return String(text)
+
         .normalize("NFD")
+
         .replace(/[\u0300-\u036f]/g, "")
+
         .toLowerCase()
+
         .trim();
+
     }
+
+
 
     function calculateDistanceKm(lat1, lon1, lat2, lon2) {
-      if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
+
+      if (![lat1, lon1, lat2, lon2].every(Number.isFinite) || !validCoords(lat1, lon1) || !validCoords(lat2, lon2)) return null;
+
       const R = 6371;
+
       const dLat = (lat2 - lat1) * Math.PI / 180;
+
       const dLon = (lon2 - lon1) * Math.PI / 180;
+
       const a = 
+
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+
         Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
       return R * c;
+
     }
 
+
+
     async function loadAllMinasGeraisCities() {
-      const set = new Set(availableSuggestions);
-      try {
-        const response = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados/MG/municipios");
-        if (response.ok) {
-          const municipalities = await response.json();
-          municipalities.forEach(m => {
-            if (m && m.nome) set.add(m.nome.trim());
-          });
-        }
-      } catch (err) {
-        console.warn("Aviso ao carregar municípios do IBGE:", err);
+      const urls = [
+        'https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/master/csv/municipios.csv',
+        'https://cdn.jsdelivr.net/gh/kelvins/Municipios-Brasileiros@master/csv/municipios.csv'
+      ];
+      let lastError;
+      for (const url of urls) {
+        try {
+          const response = await fetchWithTimeout(url, 18000);
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          const csv = await response.text();
+          const parsed = Papa.parse(csv, {header:true,skipEmptyLines:true});
+          let count = 0;
+          const names = new Set(baseLocations);
+          for (const row of parsed.data) {
+            if (String(row.codigo_uf).trim() !== '31') continue;
+            const lat = Number(String(row.latitude).replace(',','.'));
+            const lng = Number(String(row.longitude).replace(',','.'));
+            if (!row.nome || !validCoords(lat,lng)) continue;
+            mgCityCoords[normalizeText(row.nome)] = {lat,lng};
+            names.add(row.nome);
+            count++;
+          }
+          if (count !== 853) throw new Error('Base incompleta: ' + count + ' municípios');
+          availableSuggestions = Array.from(names).sort((a,b)=>a.localeCompare(b,'pt-BR'));
+          citiesLoaded = true;
+          const typed = document.getElementById('search-input').value.trim();
+          if (typed && mgCityCoords[normalizeText(typed)]) resolveCity(typed);
+          return;
+        } catch (err) { lastError = err; console.warn('Fonte de coordenadas indisponível:',url,err); }
       }
-      availableSuggestions = Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
+      console.error('Falha ao carregar coordenadas dos municípios', lastError);
+      setGpsStatus('Não foi possível carregar a base de municípios. Verifique a internet e atualize a página.', 'error');
+    }
+
+    function validCoords(lat,lng) {
+      return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -35 && lat <= 6 && lng >= -75 && lng <= -30;
     }
 
     function loadDriversData() {
+
       if (!GOOGLE_SHEET_CSV_URL) {
-        allDrivers = fallbackDrivers;
+
+        allDrivers = [];
+
         mergeDriverRegionsToSuggestions();
+
         renderClientCards(allDrivers);
+
         return;
+
       }
 
+
+
       Papa.parse(GOOGLE_SHEET_CSV_URL, {
+
         download: true,
+
         header: true,
+
         skipEmptyLines: true,
+
         complete: function(results) {
+
           if (results.data && results.data.length > 0) {
+
             allDrivers = results.data.map((row, index) => ({
+
               id: row.id || String(index + 1),
+
               name: row.nome || "Motorista Parceiro",
+
               phone: row.telefone || "",
+
               region: row.regiao || "",
+
               type: row.tipo || "Reboque Geral",
+
               verified: normalizeText(row.verificado) === "sim",
+
               desc: row.descricao || "Disponível para atendimento imediato.",
-              photo: row.foto || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+
+              photo: row.foto || "https\://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150",
+
               lat: parseFloat(String(row.latitude || "").replace(",", ".")),
+
               lng: parseFloat(String(row.longitude || "").replace(",", "."))
+
             })).filter(d => d.name && d.phone);
+
           } else {
-            allDrivers = fallbackDrivers;
+
+            allDrivers = [];
+
           }
+
           mergeDriverRegionsToSuggestions();
+
           renderClientCards(allDrivers);
+
         },
+
         error: function(err) {
+
           console.error("Erro ao carregar planilha:", err);
-          allDrivers = fallbackDrivers;
+
+          allDrivers = [];
+
           mergeDriverRegionsToSuggestions();
+
           renderClientCards(allDrivers);
+
         }
+
       });
+
     }
 
+
+
     function mergeDriverRegionsToSuggestions() {
+
       const set = new Set(availableSuggestions);
+
       allDrivers.forEach(d => {
+
         if (d.region) {
-          const parts = d.region.split(/[,\/]|\be\b/i);
+
+          const parts = d.region.split(/[,/]|\be\b/i);
+
           parts.forEach(p => {
+
             const clean = p.trim();
+
             if (clean.length > 2) set.add(clean);
+
           });
+
         }
+
       });
+
       availableSuggestions = Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
     }
+
+
+
 
 
     function handleSearchInput() {
       hideGpsStatus();
       const input = document.getElementById('search-input');
-      const clearBtn = document.getElementById('clear-search-btn');
-      const suggestionsEl = document.getElementById('suggestions-list');
-      const rawValue = input.value;
-      const query = normalizeText(rawValue);
-
-      if (rawValue.length > 0) {
-        clearBtn.classList.remove('hidden');
-      } else {
-        clearBtn.classList.add('hidden');
-        userLocation = null;
+      const q = normalizeText(input.value);
+      document.getElementById('clear-search-btn').classList.toggle('hidden', !q);
+      userLocation = null;
+      const matches = q ? availableSuggestions.filter(name => normalizeText(name).includes(q)).slice(0, 15) : [];
+      const suggestions = document.getElementById('suggestions-list');
+      suggestions.replaceChildren();
+      for (const name of matches) {
+        const li = document.createElement('li');
+        li.className = 'px-4 py-2.5 text-sm text-gray-200 hover:bg-amber-400 hover:text-black cursor-pointer';
+        li.textContent = name;
+        li.addEventListener('click', () => selectSuggestion(name));
+        suggestions.appendChild(li);
       }
-
-      // Ao editar manualmente a cidade, não reutilizar coordenadas GPS de outra busca.
-      if (userLocation && (userLocation.source === 'gps' || userLocation.source === 'ip')) {
-        userLocation = null;
-      }
-
-      // Se o que foi digitado corresponde a uma cidade com coordenadas conhecidas, define o ponto central
-      if (mgCityCoords[query]) {
-        userLocation = {
-          lat: mgCityCoords[query].lat,
-          lng: mgCityCoords[query].lng,
-          source: 'typed-city',
-          city: rawValue
-        };
-      } else {
-        // Se limpou ou mudou para algo sem coordenada exata prévia, mantém se for GPS, senão anula
-        if (userLocation && userLocation.source === 'typed-city') {
-          userLocation = null;
-        }
-      }
-
-      if (query.length >= 1) {
-        const startsWithMatches = [];
-        const containsMatches = [];
-
-        for (const loc of availableSuggestions) {
-          const normLoc = normalizeText(loc);
-          if (normLoc.startsWith(query)) {
-            startsWithMatches.push(loc);
-          } else if (normLoc.includes(query)) {
-            containsMatches.push(loc);
-          }
-        }
-
-        const matches = [...startsWithMatches, ...containsMatches].slice(0, 15);
-
-        if (matches.length > 0) {
-          suggestionsEl.innerHTML = matches.map(loc => {
-            const safeLoc = loc.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-            return `
-              <li onclick="selectSuggestion('${safeLoc}')" 
-                  class="px-4 py-2.5 text-sm text-gray-200 hover:bg-amber-400 hover:text-black cursor-pointer flex items-center gap-2 transition">
-                <i data-lucide="map-pin" class="w-4 h-4 opacity-70 shrink-0"></i>
-                <span>${loc}</span>
-              </li>
-            `;
-          }).join('');
-          suggestionsEl.classList.remove('hidden');
-          if (window.lucide) lucide.createIcons();
-        } else {
-          suggestionsEl.classList.add('hidden');
-        }
-      } else {
-        suggestionsEl.classList.add('hidden');
-      }
-
+      suggestions.classList.toggle('hidden', !matches.length);
+      const point = mgCityCoords[q];
+      if (point) userLocation = { ...point, source: 'typed-city', city: input.value };
       filterDrivers();
     }
 
-    function selectSuggestion(locationName) {
-      hideGpsStatus();
-      const input = document.getElementById('search-input');
-      input.value = locationName;
+    async function selectSuggestion(name) {
+      document.getElementById('search-input').value = name;
       document.getElementById('suggestions-list').classList.add('hidden');
       document.getElementById('clear-search-btn').classList.remove('hidden');
+      await resolveCity(name);
+    }
 
-      const normName = normalizeText(locationName);
-      if (mgCityCoords[normName]) {
-        userLocation = {
-          lat: mgCityCoords[normName].lat,
-          lng: mgCityCoords[normName].lng,
-          source: 'selected-city',
-          city: locationName
-        };
-      } else {
-        userLocation = null;
+    async function resolveCity(name) {
+      const normalized = normalizeText(name);
+      let point = mgCityCoords[normalized];
+      if (!point && !citiesLoaded) {
+        setGpsStatus('Carregando coordenadas dos municípios de Minas Gerais...', 'info');
+        await cityLoadPromise;
+        point = mgCityCoords[normalized];
       }
-
+      if (!point) {
+        userLocation = null;
+        setGpsStatus('Não encontramos coordenadas para essa cidade. Selecione um município de MG na lista.', 'warning');
+      } else {
+        userLocation = { ...point, source: 'selected-city', city: name };
+        setGpsStatus('Distâncias estimadas em linha reta a partir do centro do município.', 'success');
+      }
       filterDrivers();
     }
 
-
-    function clearSearch() {
-      hideGpsStatus();
-      const input = document.getElementById('search-input');
-      input.value = "";
-      userLocation = null;
-      document.getElementById('suggestions-list').classList.add('hidden');
-      document.getElementById('clear-search-btn').classList.add('hidden');
-
-      filterDrivers();
-    }
-
-    document.addEventListener('click', (e) => {
-      const container = document.getElementById('search-container');
-      if (container && !container.contains(e.target)) {
+    document.getElementById('search-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
         document.getElementById('suggestions-list').classList.add('hidden');
+        resolveCity(e.target.value.trim());
       }
     });
+    document.getElementById('search-input').addEventListener('blur', e => {
+      const name = e.target.value.trim();
+      if (name && !userLocation) setTimeout(() => resolveCity(name), 180);
+    });
 
-    // ================= ORDENAÇÃO POR PROXIMIDADE GEOGRÁFICA (KM) =================
-    function filterDrivers() {
-      const query = normalizeText(document.getElementById('search-input').value);
-      
-      // Se tivermos coordenadas de referência (seja por GPS ou por cidade digitada/selecionada),
-      // ordenamos TODOS os motoristas por proximidade real em quilômetros!
-      if (userLocation) {
-        let filtered = allDrivers.map(d => {
-          const dist = calculateDistanceKm(userLocation.lat, userLocation.lng, d.lat, d.lng);
-          return { ...d, distanceKm: dist };
-        }).sort((a, b) => {
-          if (a.distanceKm === null) return 1;
-          if (b.distanceKm === null) return -1;
-          return a.distanceKm - b.distanceKm;
-        });
-        
-        const titleText = userLocation.city ? ` de ${userLocation.city}` : " de Você";
-        document.getElementById('list-title').innerHTML = `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos${titleText}`;
-        renderClientCards(filtered);
-        return;
-      }
+    function clearSearch() {
 
-      // Caso contrário, se for busca livre por texto sem cidade mapeada:
-      document.getElementById('list-title').innerHTML = `<i data-lucide="truck" class="w-5 h-5 text-amber-400"></i> Motoristas Disponíveis`;
-      
-      let filtered = allDrivers.filter(d => 
-        normalizeText(d.name).includes(query) ||
-        normalizeText(d.region).includes(query) ||
-        normalizeText(d.type).includes(query)
-      );
+      hideGpsStatus();
 
-      // Garante que nunca fique vazio: se a busca não retornar exato, exibe todos os motoristas
-      if (filtered.length === 0 && query !== "") {
-        filtered = [...allDrivers];
-      }
+      const input = document.getElementById('search-input');
 
-      renderClientCards(filtered);
-    }
+      input.value = "";
 
-    function renderClientCards(drivers) {
-      const listEl = document.getElementById('drivers-list');
-      const countEl = document.getElementById('driver-count');
-      countEl.innerText = `${drivers.length} prestador(es) disponível(is)`;
+      userLocation = null;
 
-      if (drivers.length === 0) {
-        listEl.innerHTML = `
-          <div class="col-span-full py-12 text-center text-gray-500 bg-gray-800/20 rounded-2xl border border-gray-800">
-            <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-2 text-gray-600"></i>
-            <p class="font-medium text-gray-300">Nenhum guincho encontrado para essa busca.</p>
-            <p class="text-xs mt-1">Tente limpar a busca ou clicar em "Usar Meu GPS".</p>
-          </div>
-        `;
-        if (window.lucide) lucide.createIcons();
-        return;
-      }
-
-      listEl.innerHTML = drivers.map(d => {
-        const cleanPhone = d.phone.replace(/\D/g, '');
-        const distText = (typeof d.distanceKm === 'number') ? ` (distância estimada de ${d.distanceKm.toFixed(1)} km)` : '';
-        const message = encodeURIComponent(`Olá ${d.name}, vi seu contato no site Reboque 24h${distText} e preciso de socorro veicular!`);
-        const waLink = `https://wa.me/55${cleanPhone}?text=${message}`;
-
-        return `
-          <article class="bg-gray-800/70 border border-gray-700/70 rounded-2xl p-5 flex flex-col justify-between hover:border-amber-400/50 transition duration-200 shadow-md">
-            <div>
-              <div class="flex items-start justify-between gap-3 mb-3">
-                <div class="flex items-center space-x-3">
-                  <img src="${d.photo}" alt="${d.name}" 
-                       onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'"
-                       class="w-12 h-12 rounded-full object-cover border border-amber-400/40 shrink-0">
-                  <div>
-                    <h3 class="font-bold text-white text-base leading-tight">${d.name}</h3>
-                    <p class="text-xs text-amber-400 font-medium flex items-center gap-1 mt-0.5">
-                      <i data-lucide="map-pin" class="w-3 h-3 shrink-0"></i> ${d.region}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="flex flex-wrap gap-2 mb-3">
-                ${d.verified ? `
-                  <span class="inline-flex items-center gap-1 bg-amber-400/10 text-amber-400 border border-amber-400/30 text-xs px-2.5 py-0.5 rounded-full font-semibold">
-                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Verificado
-                  </span>
-                ` : ''}
-
-                ${typeof d.distanceKm === 'number' ? `
-                  <span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-2.5 py-0.5 rounded-full font-semibold">
-                    <i data-lucide="navigation" class="w-3 h-3"></i> A aprox. ${d.distanceKm.toFixed(1)} km
-                  </span>
-                ` : ''}
-              </div>
-
-              <div class="space-y-2 text-xs text-gray-300 mb-4">
-                <p><span class="text-gray-400">Equipamento:</span> ${d.type}</p>
-                <p class="text-gray-400 line-clamp-2">${d.desc}</p>
-              </div>
-            </div>
-
-            <a href="${waLink}" target="_blank" rel="noopener"
-               class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-lg">
-              <i data-lucide="message-square" class="w-5 h-5"></i> Chamar no WhatsApp
-            </a>
-          </article>
-        `;
-      }).join('');
-
-      if (window.lucide) lucide.createIcons();
-    }
-
-    // ================= LOCALIZAÇÃO GPS =================
-    let locationRequestInProgress = false;
-
-    function hideGpsStatus() {
-      document.getElementById("gps-status").classList.add("hidden");
-    }
-
-    function setGpsStatus(message, type = "info") {
-      const status = document.getElementById('gps-status');
-      const styles = { info: "text-amber-400", success: "text-emerald-400", warning: "text-amber-300", error: "text-red-400" };
-      const icons = { info: "loader-2", success: "check-circle-2", warning: "map-pin", error: "alert-triangle" };
-      status.className = `mt-3 text-xs font-medium flex items-center gap-1.5 ${styles[type] || styles.info}`;
-      status.innerHTML = `<i data-lucide="${icons[type] || icons.info}" class="w-4 h-4 shrink-0"></i><span>${message}</span>`;
-      status.classList.remove('hidden');
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function setGpsButtonLoading(loading) {
-      const btn = document.getElementById('btn-gps');
-      btn.disabled = loading;
-      btn.classList.toggle('opacity-70', loading);
-      btn.classList.toggle('cursor-not-allowed', loading);
-      btn.innerHTML = loading
-        ? `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Localizando...`
-        : `<i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS`;
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function applyUserLocation(latitude, longitude, source, details = {}) {
-      userLocation = {
-        lat: Number(latitude), lng: Number(longitude), source,
-        accuracy: Number.isFinite(details.accuracy) ? details.accuracy : null,
-        city: details.city || "", region: details.region || ""
-      };
-
-      const searchInput = document.getElementById('search-input');
-      const clearBtn = document.getElementById('clear-search-btn');
-      const placeName = [details.city, details.region].filter(Boolean).join(" - ");
       document.getElementById('suggestions-list').classList.add('hidden');
 
-      if (details.city) {
-        searchInput.value = details.city;
-      } else if (placeName) {
-        searchInput.value = placeName;
-      } else {
-        searchInput.value = "Localização atual (GPS)";
+      document.getElementById('clear-search-btn').classList.add('hidden');
+
+
+
+      filterDrivers();
+
+    }
+
+
+
+    document.addEventListener('click', (e) => {
+
+      const container = document.getElementById('search-container');
+
+      if (container && !container.contains(e.target)) {
+
+        document.getElementById('suggestions-list').classList.add('hidden');
+
       }
+
+    });
+
+
+
+    // ================= ORDENAÇÃO POR PROXIMIDADE GEOGRÁFICA (KM) =================
+
+    function filterDrivers() {
+
+      const query = normalizeText(document.getElementById('search-input').value);
+
+
+
+      // Se tivermos coordenadas de referência (seja por GPS ou por cidade digitada/selecionada),
+
+      // ordenamos TODOS os motoristas por proximidade real em quilômetros!
+
+      if (userLocation) {
+
+        let filtered = allDrivers.map(d => {
+
+          const dist = calculateDistanceKm(userLocation.lat, userLocation.lng, d.lat, d.lng);
+
+          return { ...d, distanceKm: dist };
+
+        }).sort((a, b) => {
+
+          if (a.distanceKm === null) return 1;
+
+          if (b.distanceKm === null) return -1;
+
+          return a.distanceKm - b.distanceKm;
+
+        });
+
+
+
+        const titleText = userLocation.city ? ` de ${userLocation.city}` : " de Você";
+
+        document.getElementById('list-title').innerHTML = `<i data-lucide="navigation" class="w-5 h-5 text-emerald-400"></i> Motoristas Mais Próximos${titleText}`;
+
+        renderClientCards(filtered);
+
+        return;
+
+      }
+
+
+
+      // Caso contrário, se for busca livre por texto sem cidade mapeada:
+
+      document.getElementById('list-title').innerHTML = `<i data-lucide="truck" class="w-5 h-5 text-amber-400"></i> Motoristas Disponíveis`;
+
+
+
+      let filtered = allDrivers.filter(d => 
+
+        normalizeText(d.name).includes(query) ||
+
+        normalizeText(d.region).includes(query) ||
+
+        normalizeText(d.type).includes(query)
+
+      );
+
+
+
+      // Garante que nunca fique vazio: se a busca não retornar exato, exibe todos os motoristas
+
+      if (filtered.length === 0 && query !== "") {
+
+        filtered = [...allDrivers];
+
+      }
+
+
+
+      renderClientCards(filtered);
+
+    }
+
+
+
+    function renderClientCards(drivers) {
+
+      const listEl = document.getElementById('drivers-list');
+
+      const countEl = document.getElementById('driver-count');
+
+      countEl.innerText = `${drivers.length} prestador(es) disponível(is)`;
+
+
+
+      if (drivers.length === 0) {
+
+        listEl.innerHTML = `
+
+          <div class="col-span-full py-12 text-center text-gray-500 bg-gray-800/20 rounded-2xl border border-gray-800">
+
+            <i data-lucide="search-x" class="w-12 h-12 mx-auto mb-2 text-gray-600"></i>
+
+            <p class="font-medium text-gray-300">Nenhum guincho encontrado para essa busca.</p>
+
+            <p class="text-xs mt-1">Tente limpar a busca ou clicar em "Usar Meu GPS".</p>
+
+          </div>
+
+        `;
+
+        if (window.lucide) lucide.createIcons();
+
+        return;
+
+      }
+
+
+
+      listEl.innerHTML = drivers.map(d => {
+
+        const cleanPhone = d.phone.replace(/\D/g, '');
+
+        const distText = (Number.isFinite(d.distanceKm)) ? ` (distância estimada de ${d.distanceKm.toFixed(1)} km)` : '';
+
+        const message = encodeURIComponent(`Olá ${d.name}, vi seu contato no site Reboque 24h${distText} e preciso de socorro veicular!`);
+
+        const waLink = `https\://wa.me/55${cleanPhone}?text=${message}`;
+
+
+
+        return `
+
+          <article class="bg-gray-800/70 border border-gray-700/70 rounded-2xl p-5 flex flex-col justify-between hover:border-amber-400/50 transition duration-200 shadow-md">
+
+            <div>
+
+              <div class="flex items-start justify-between gap-3 mb-3">
+
+                <div class="flex items-center space-x-3">
+
+                  <img src="${d.photo}" alt="${d.name}" 
+
+                       onerror="this.src='https\://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150'"
+
+                       class="w-12 h-12 rounded-full object-cover border border-amber-400/40 shrink-0">
+
+                  <div>
+
+                    <h3 class="font-bold text-white text-base leading-tight">${d.name}</h3>
+
+                    <p class="text-xs text-amber-400 font-medium flex items-center gap-1 mt-0.5">
+
+                      <i data-lucide="map-pin" class="w-3 h-3 shrink-0"></i> ${d.region}
+
+                    </p>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+
+              <div class="flex flex-wrap gap-2 mb-3">
+
+                ${d.verified ? `
+
+                  <span class="inline-flex items-center gap-1 bg-amber-400/10 text-amber-400 border border-amber-400/30 text-xs px-2.5 py-0.5 rounded-full font-semibold">
+
+                    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Verificado
+
+                  </span>
+
+                ` : ''}
+
+
+
+                ${Number.isFinite(d.distanceKm) ? `
+
+                  <span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-2.5 py-0.5 rounded-full font-semibold">
+
+                    <i data-lucide="navigation" class="w-3 h-3"></i> A aprox. ${d.distanceKm.toFixed(1)} km
+
+                  </span>
+
+                ` : ''}
+
+              </div>
+
+
+
+              <div class="space-y-2 text-xs text-gray-300 mb-4">
+
+                <p><span class="text-gray-400">Equipamento:</span> ${d.type}</p>
+
+                <p class="text-gray-400 line-clamp-2">${d.desc}</p>
+
+              </div>
+
+            </div>
+
+
+
+            <a href="${waLink}" target="\_blank" rel="noopener"
+
+               class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-lg">
+
+              <i data-lucide="message-square" class="w-5 h-5"></i> Chamar no WhatsApp
+
+            </a>
+
+          </article>
+
+        `;
+
+      }).join('');
+
+
+
+      if (window.lucide) lucide.createIcons();
+
+    }
+
+
+
+    // ================= LOCALIZAÇÃO GPS =================
+
+    let locationRequestInProgress = false;
+
+
+
+    function hideGpsStatus() {
+
+      document.getElementById("gps-status").classList.add("hidden");
+
+    }
+
+
+
+    function setGpsStatus(message, type = "info") {
+
+      const status = document.getElementById('gps-status');
+
+      const styles = { info: "text-amber-400", success: "text-emerald-400", warning: "text-amber-300", error: "text-red-400" };
+
+      const icons = { info: "loader-2", success: "check-circle-2", warning: "map-pin", error: "alert-triangle" };
+
+      status.className = `mt-3 text-xs font-medium flex items-center gap-1.5 ${styles[type] || styles.info}`;
+
+      status.innerHTML = `<i data-lucide="${icons[type] || icons.info}" class="w-4 h-4 shrink-0"></i><span>${message}</span>`;
+
+      status.classList.remove('hidden');
+
+      if (window.lucide) lucide.createIcons();
+
+    }
+
+
+
+    function setGpsButtonLoading(loading) {
+
+      const btn = document.getElementById('btn-gps');
+
+      btn.disabled = loading;
+
+      btn.classList.toggle('opacity-70', loading);
+
+      btn.classList.toggle('cursor-not-allowed', loading);
+
+      btn.innerHTML = loading
+
+        ? `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Localizando...`
+
+        : `<i data-lucide="crosshair" class="w-5 h-5"></i> Usar Meu GPS`;
+
+      if (window.lucide) lucide.createIcons();
+
+    }
+
+
+
+    function applyUserLocation(latitude, longitude, source, details = {}) {
+
+      userLocation = {
+
+        lat: Number(latitude), lng: Number(longitude), source,
+
+        accuracy: Number.isFinite(details.accuracy) ? details.accuracy : null,
+
+        city: details.city || "", region: details.region || ""
+
+      };
+
+
+
+      const searchInput = document.getElementById('search-input');
+
+      const clearBtn = document.getElementById('clear-search-btn');
+
+      const placeName = [details.city, details.region].filter(Boolean).join(" - ");
+
+      document.getElementById('suggestions-list').classList.add('hidden');
+
+
+
+      if (details.city) {
+
+        searchInput.value = details.city;
+
+      } else if (placeName) {
+
+        searchInput.value = placeName;
+
+      } else {
+
+        searchInput.value = "Localização atual (GPS)";
+
+      }
+
+
 
       clearBtn.classList.remove('hidden');
 
+
+
       filterDrivers();
+
       if (window.lucide) lucide.createIcons();
+
     }
+
+
 
     async function fetchWithTimeout(url, timeoutMs = 7000) {
+
       const controller = new AbortController();
+
       const timer = setTimeout(() => controller.abort(), timeoutMs);
+
       try {
+
         return await fetch(url, { signal: controller.signal, headers: { "Accept": "application/json" } });
+
       } finally {
+
         clearTimeout(timer);
+
       }
+
     }
+
+
 
     // Converte as coordenadas em nome do município, com serviço alternativo.
+
     async function reverseGeocode(latitude, longitude) {
+
       const providers = [
+
         async () => {
-          const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=pt`;
+
+          const url = `https\://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=pt`;
+
           const response = await fetchWithTimeout(url, 6500);
+
           if (!response.ok) throw new Error(`BigDataCloud HTTP ${response.status}`);
+
           const data = await response.json();
+
           // city pode ser uma localidade menor; preferir o município quando informado.
+
           const municipality = (data.localityInfo?.administrative || [])
+
             .find(item => /municipality|município|municipio/i.test(item.description || ""));
+
           return {
+
             city: municipality?.name || data.city || data.locality || "",
+
             region: data.principalSubdivision || ""
+
           };
+
         },
+
         async () => {
-          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=10&addressdetails=1&accept-language=pt-BR`;
+
+          const url = `https\://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=10&addressdetails=1&accept-language=pt-BR`;
+
           const response = await fetchWithTimeout(url, 6500);
+
           if (!response.ok) throw new Error(`OpenStreetMap HTTP ${response.status}`);
+
           const data = await response.json();
+
           const address = data.address || {};
+
           return {
+
             city: address.municipality || address.city || address.town || address.village || "",
+
             region: address.state || ""
+
           };
+
         }
+
       ];
 
+
+
       for (const provider of providers) {
+
         try {
+
           const place = await provider();
+
           if (place.city) return place;
+
         } catch (error) {
+
           console.warn("Serviço de identificação da cidade indisponível:", error);
+
         }
+
       }
+
       return { city: "", region: "" };
+
     }
+
+
 
     async function handleLocationSuccess(position) {
+
       const latitude = position.coords.latitude;
+
       const longitude = position.coords.longitude;
+
       const accuracy = position.coords.accuracy;
+
       const place = await reverseGeocode(latitude, longitude);
 
+
+
       applyUserLocation(latitude, longitude, "gps", { accuracy, city: place.city, region: place.region });
+
       setGpsButtonLoading(false);
 
+
+
       if (place.city) {
+
         setGpsStatus("Localização identificada. Veja quais os reboques mais perto de você.", "success");
+
       } else {
+
         hideGpsStatus();
+
       }
+
       locationRequestInProgress = false;
+
     }
+
+
 
     async function getLocationByIP() {
+
       const providers = [
+
         async () => {
-          const response = await fetchWithTimeout("https://ipwho.is/", 6000);
+
+          const response = await fetchWithTimeout("https\://ipwho.is/", 6000);
+
           const data = await response.json();
+
           if (!response.ok || data.success === false || !Number.isFinite(Number(data.latitude)) || !Number.isFinite(Number(data.longitude))) throw new Error("Resposta inválida do ipwho.is");
+
           return { lat: Number(data.latitude), lng: Number(data.longitude), city: data.city || "", region: data.region || "" };
+
         },
+
         async () => {
-          const response = await fetchWithTimeout("https://ipapi.co/json/", 6000);
+
+          const response = await fetchWithTimeout("https\://ipapi.co/json/", 6000);
+
           const data = await response.json();
+
           if (!response.ok || data.error || !Number.isFinite(Number(data.latitude)) || !Number.isFinite(Number(data.longitude))) throw new Error("Resposta inválida do ipapi.co");
+
           return { lat: Number(data.latitude), lng: Number(data.longitude), city: data.city || "", region: data.region || data.region_code || "" };
+
         }
+
       ];
 
+
+
       for (const provider of providers) {
+
         try { return await provider(); }
+
         catch (error) { console.warn("Provedor de localização por IP falhou:", error); }
+
       }
+
       throw new Error("Os provedores de localização por IP não responderam.");
+
     }
+
+
 
     async function tryIPFallback(reason) {
+
       hideGpsStatus();
+
       try {
+
         const location = await getLocationByIP();
+
         applyUserLocation(location.lat, location.lng, "ip", { city: location.city, region: location.region });
+
         setGpsButtonLoading(false);
+
         if (location.city) {
+
           setGpsStatus("Localização identificada. Veja quais os reboques mais perto de você.", "success");
+
         } else {
+
           hideGpsStatus();
+
         }
+
       } catch (error) {
+
         console.error("Falha nos métodos automáticos de localização:", reason, error);
+
         setGpsButtonLoading(false);
+
         setGpsStatus("Não foi possível identificar sua localização. Digite sua cidade na busca.", "error");
+
       } finally {
+
         locationRequestInProgress = false;
+
       }
+
     }
+
+
 
     function useGPS() {
+
       if (locationRequestInProgress) return;
+
       locationRequestInProgress = true;
+
       setGpsButtonLoading(true);
+
       hideGpsStatus();
 
+
+
       if (!window.isSecureContext) {
+
         tryIPFallback("O site não está em HTTPS");
+
         return;
+
       }
+
       if (!("geolocation" in navigator)) {
+
         tryIPFallback("Navegador sem suporte à Geolocation API");
+
         return;
+
       }
+
+
 
       navigator.geolocation.getCurrentPosition(
+
         handleLocationSuccess,
+
         async (error) => {
+
           console.warn("Tentativa principal de localização falhou:", error);
 
+
+
           if (error.code === error.PERMISSION_DENIED) {
+
             await tryIPFallback("Permissão de localização negada");
+
             return;
+
           }
 
+
+
           hideGpsStatus();
+
           navigator.geolocation.getCurrentPosition(
+
             handleLocationSuccess,
+
             async (secondError) => {
+
               console.warn("Tentativa alternativa do navegador falhou:", secondError);
+
               await tryIPFallback(secondError);
+
             },
+
             { enableHighAccuracy: false, timeout: 12000, maximumAge: 120000 }
+
           );
+
         },
+
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+
       );
+
     }
+
+
 
     function failGPS(error) {
+
       tryIPFallback(error);
+
     }
 
+
+
     document.addEventListener('DOMContentLoaded', () => {
+
       if (window.lucide) lucide.createIcons();
-      loadAllMinasGeraisCities();
+
+      cityLoadPromise = loadAllMinasGeraisCities();
+
       loadDriversData();
+
     });
+
   </script>
+
 </body>
+
 </html>
