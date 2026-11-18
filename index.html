@@ -94,7 +94,7 @@ html_content = r"""<!DOCTYPE html>
         </div>
 
         <!-- Atalhos Rápidos -->
-        <div class="flex flex-wrap items-center gap-2 pt-2">
+        <div id="quick-shortcuts" class="flex flex-wrap items-center gap-2 pt-2">
           <span class="text-xs text-gray-400 font-medium flex items-center gap-1">
             <i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> Atalhos rápidos:
           </span>
@@ -321,6 +321,15 @@ html_content = r"""<!DOCTYPE html>
       availableSuggestions = Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
     }
 
+    // Esconde os atalhos quando uma cidade identificada está preenchida.
+    function updateQuickShortcuts() {
+      const shortcuts = document.getElementById('quick-shortcuts');
+      const searchInput = document.getElementById('search-input');
+      if (!shortcuts || !searchInput) return;
+      const cityIdentified = Boolean(userLocation && userLocation.city && searchInput.value.trim());
+      shortcuts.classList.toggle('hidden', cityIdentified);
+    }
+
     function handleSearchInput() {
       const input = document.getElementById('search-input');
       const clearBtn = document.getElementById('clear-search-btn');
@@ -390,6 +399,7 @@ html_content = r"""<!DOCTYPE html>
         suggestionsEl.classList.add('hidden');
       }
 
+      updateQuickShortcuts();
       filterDrivers();
     }
 
@@ -411,6 +421,7 @@ html_content = r"""<!DOCTYPE html>
         userLocation = null;
       }
 
+      updateQuickShortcuts();
       filterDrivers();
     }
 
@@ -424,6 +435,7 @@ html_content = r"""<!DOCTYPE html>
       userLocation = null;
       document.getElementById('suggestions-list').classList.add('hidden');
       document.getElementById('clear-search-btn').classList.add('hidden');
+      updateQuickShortcuts();
       filterDrivers();
     }
 
@@ -589,6 +601,7 @@ html_content = r"""<!DOCTYPE html>
       }
 
       clearBtn.classList.remove('hidden');
+      updateQuickShortcuts();
       filterDrivers();
       if (window.lucide) lucide.createIcons();
     }
@@ -754,7 +767,6 @@ html_content = r"""<!DOCTYPE html>
 </html>
 """
 
-# Salvar o arquivo index.html no mesmo diretório
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html_content)
 
