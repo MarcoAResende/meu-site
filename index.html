@@ -335,6 +335,11 @@ html_content = r"""<!DOCTYPE html>
         userLocation = null;
       }
 
+      // Ao editar manualmente a cidade, não reutilizar coordenadas GPS de outra busca.
+      if (userLocation && (userLocation.source === 'gps' || userLocation.source === 'ip')) {
+        userLocation = null;
+      }
+
       // Se o que foi digitado corresponde a uma cidade com coordenadas conhecidas, define o ponto central
       if (mgCityCoords[query]) {
         userLocation = {
@@ -573,6 +578,7 @@ html_content = r"""<!DOCTYPE html>
       const searchInput = document.getElementById('search-input');
       const clearBtn = document.getElementById('clear-search-btn');
       const placeName = [details.city, details.region].filter(Boolean).join(" - ");
+      document.getElementById('suggestions-list').classList.add('hidden');
 
       if (details.city) {
         searchInput.value = details.city;
@@ -597,20 +603,44 @@ html_content = r"""<!DOCTYPE html>
       }
     }
 
+    // Converte as coordenadas em nome do município, com serviço alternativo.
     async function reverseGeocode(latitude, longitude) {
-      try {
-        const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=pt`;
-        const response = await fetchWithTimeout(url, 6000);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        return {
-          city: data.city || data.locality || "",
-          region: data.principalSubdivision || ""
-        };
-      } catch (error) {
-        console.warn("Falha ao identificar o nome da cidade:", error);
-        return { city: "", region: "" };
+      const providers = [
+        async () => {
+          const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${encodeURIComponent(latitude)}&longitude=${encodeURIComponent(longitude)}&localityLanguage=pt`;
+          const response = await fetchWithTimeout(url, 6500);
+          if (!response.ok) throw new Error(`BigDataCloud HTTP ${response.status}`);
+          const data = await response.json();
+          // city pode ser uma localidade menor; preferir o município quando informado.
+          const municipality = (data.localityInfo?.administrative || [])
+            .find(item => /municipality|município|municipio/i.test(item.description || ""));
+          return {
+            city: municipality?.name || data.city || data.locality || "",
+            region: data.principalSubdivision || ""
+          };
+        },
+        async () => {
+          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(latitude)}&lon=${encodeURIComponent(longitude)}&zoom=10&addressdetails=1&accept-language=pt-BR`;
+          const response = await fetchWithTimeout(url, 6500);
+          if (!response.ok) throw new Error(`OpenStreetMap HTTP ${response.status}`);
+          const data = await response.json();
+          const address = data.address || {};
+          return {
+            city: address.municipality || address.city || address.town || address.village || "",
+            region: address.state || ""
+          };
+        }
+      ];
+
+      for (const provider of providers) {
+        try {
+          const place = await provider();
+          if (place.city) return place;
+        } catch (error) {
+          console.warn("Serviço de identificação da cidade indisponível:", error);
+        }
       }
+      return { city: "", region: "" };
     }
 
     async function handleLocationSuccess(position) {
