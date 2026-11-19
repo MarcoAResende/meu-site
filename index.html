@@ -1,7 +1,4 @@
-from pathlib import Path
-
-# Execute este script para gerar o arquivo index.html do site.
-html_content = r"""<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="pt-BR">
 
@@ -289,7 +286,7 @@ html_content = r"""<!DOCTYPE html>
 
 
 
-    // Exemplos antigos (não são exibidos caso a planilha falhe)
+    // Dados de reserva caso o CSV falhe
 
     const fallbackDrivers = [
 
@@ -345,11 +342,865 @@ html_content = r"""<!DOCTYPE html>
 
 
 
-    // Coordenadas de todos os municípios de MG são carregadas de base pública
-    // Municipios-Brasileiros (kelvins): codigo_ibge, nome, latitude, longitude, codigo_uf
-    const mgCityCoords = Object.create(null);
-    let citiesLoaded = false;
-    let cityLoadPromise = null;
+    // Mapa fixo de coordenadas de referência para cálculo imediato de proximidade por cidade
+
+    const mgCityCoords = {
+      "abadia dos dourados": {"lat": -18.4831, "lng": -47.3916},
+      "abaete": {"lat": -19.1551, "lng": -45.4444},
+      "abre campo": {"lat": -20.2996, "lng": -42.4743},
+      "acaiaca": {"lat": -20.359, "lng": -43.1439},
+      "acucena": {"lat": -19.0671, "lng": -42.5419},
+      "agua boa": {"lat": -17.9914, "lng": -42.3806},
+      "agua comprida": {"lat": -20.0576, "lng": -48.1069},
+      "aguanil": {"lat": -20.9439, "lng": -45.3915},
+      "aguas formosas": {"lat": -17.0802, "lng": -40.9384},
+      "aguas vermelhas": {"lat": -15.7431, "lng": -41.4571},
+      "aimores": {"lat": -19.5007, "lng": -41.0746},
+      "aiuruoca": {"lat": -21.9736, "lng": -44.6042},
+      "alagoa": {"lat": -22.171, "lng": -44.6413},
+      "albertina": {"lat": -22.2018, "lng": -46.6139},
+      "alem paraiba": {"lat": -21.8797, "lng": -42.7176},
+      "alfenas": {"lat": -21.4256, "lng": -45.9477},
+      "alfredo vasconcelos": {"lat": -21.1535, "lng": -43.7718},
+      "almenara": {"lat": -16.1785, "lng": -40.6942},
+      "alpercata": {"lat": -18.974, "lng": -41.97},
+      "alpinopolis": {"lat": -20.8631, "lng": -46.3878},
+      "alterosa": {"lat": -21.2488, "lng": -46.1387},
+      "alto caparao": {"lat": -20.431, "lng": -41.8738},
+      "alto jequitiba": {"lat": -20.4208, "lng": -41.967},
+      "alto rio doce": {"lat": -21.0281, "lng": -43.4067},
+      "alvarenga": {"lat": -19.4174, "lng": -41.7317},
+      "alvinopolis": {"lat": -20.1098, "lng": -43.0535},
+      "alvorada de minas": {"lat": -18.7334, "lng": -43.3638},
+      "amparo do serra": {"lat": -20.5051, "lng": -42.8009},
+      "andradas": {"lat": -22.0695, "lng": -46.5724},
+      "andrelandia": {"lat": -21.7411, "lng": -44.3117},
+      "angelandia": {"lat": -17.7279, "lng": -42.2641},
+      "antonio carlos": {"lat": -21.321, "lng": -43.7451},
+      "antonio dias": {"lat": -19.6491, "lng": -42.8732},
+      "antonio prado de minas": {"lat": -21.0192, "lng": -42.1109},
+      "aracai": {"lat": -19.1955, "lng": -44.2493},
+      "aracitaba": {"lat": -21.3446, "lng": -43.3736},
+      "aracuai": {"lat": -16.8523, "lng": -42.0637},
+      "araguari": {"lat": -18.6456, "lng": -48.1934},
+      "arantina": {"lat": -21.9102, "lng": -44.2555},
+      "araponga": {"lat": -20.6686, "lng": -42.5178},
+      "arapora": {"lat": -18.4357, "lng": -49.1847},
+      "arapua": {"lat": -19.0268, "lng": -46.1484},
+      "araujos": {"lat": -19.9405, "lng": -45.1671},
+      "araxa": {"lat": -19.5902, "lng": -46.9438},
+      "arceburgo": {"lat": -21.359, "lng": -46.9401},
+      "arcos": {"lat": -20.2863, "lng": -45.5373},
+      "areado": {"lat": -21.3572, "lng": -46.1421},
+      "argirita": {"lat": -21.6083, "lng": -42.8292},
+      "aricanduva": {"lat": -17.8666, "lng": -42.5533},
+      "arinos": {"lat": -15.9187, "lng": -46.1043},
+      "astolfo dutra": {"lat": -21.3184, "lng": -42.8572},
+      "ataleia": {"lat": -18.0438, "lng": -41.1149},
+      "augusto de lima": {"lat": -18.0997, "lng": -44.2655},
+      "baependi": {"lat": -21.957, "lng": -44.8874},
+      "baldim": {"lat": -19.2832, "lng": -43.9613},
+      "bambui": {"lat": -20.0166, "lng": -45.9754},
+      "bandeira": {"lat": -15.8783, "lng": -40.5622},
+      "bandeira do sul": {"lat": -21.7308, "lng": -46.3833},
+      "barao de cocais": {"lat": -19.9389, "lng": -43.4755},
+      "barao de monte alto": {"lat": -21.2444, "lng": -42.2372},
+      "barbacena": {"lat": -21.2214, "lng": -43.7703},
+      "barra longa": {"lat": -20.2869, "lng": -43.0402},
+      "barroso": {"lat": -21.1907, "lng": -43.972},
+      "bela vista de minas": {"lat": -19.8302, "lng": -43.0922},
+      "belmiro braga": {"lat": -21.944, "lng": -43.4084},
+      "belo horizonte": {"lat": -19.9102, "lng": -43.9266},
+      "belo oriente": {"lat": -19.2199, "lng": -42.4828},
+      "belo vale": {"lat": -20.4077, "lng": -44.0275},
+      "berilo": {"lat": -16.9567, "lng": -42.4606},
+      "berizal": {"lat": -15.61, "lng": -41.7432},
+      "bertopolis": {"lat": -17.059, "lng": -40.58},
+      "betim": {"lat": -19.9668, "lng": -44.2008},
+      "bias fortes": {"lat": -21.602, "lng": -43.7574},
+      "bicas": {"lat": -21.7232, "lng": -43.056},
+      "biquinhas": {"lat": -18.7754, "lng": -45.4974},
+      "boa esperanca": {"lat": -21.0927, "lng": -45.5612},
+      "bocaina de minas": {"lat": -22.1697, "lng": -44.3972},
+      "bocaiuva": {"lat": -17.1135, "lng": -43.8104},
+      "bom despacho": {"lat": -19.7386, "lng": -45.2622},
+      "bom jardim de minas": {"lat": -21.9479, "lng": -44.1885},
+      "bom jesus da penha": {"lat": -21.0148, "lng": -46.5174},
+      "bom jesus do amparo": {"lat": -19.7054, "lng": -43.4782},
+      "bom jesus do galho": {"lat": -19.836, "lng": -42.3165},
+      "bom repouso": {"lat": -22.4675, "lng": -46.144},
+      "bom sucesso": {"lat": -21.0329, "lng": -44.7537},
+      "bonfim": {"lat": -20.3302, "lng": -44.2366},
+      "bonfinopolis de minas": {"lat": -16.568, "lng": -45.9839},
+      "bonito de minas": {"lat": -15.3231, "lng": -44.7543},
+      "borda da mata": {"lat": -22.2707, "lng": -46.1653},
+      "botelhos": {"lat": -21.6412, "lng": -46.391},
+      "botumirim": {"lat": -16.8657, "lng": -43.0086},
+      "bras pires": {"lat": -20.8419, "lng": -43.2406},
+      "brasilandia de minas": {"lat": -16.9999, "lng": -46.0081},
+      "brasilia de minas": {"lat": -16.2104, "lng": -44.4299},
+      "braunas": {"lat": -19.0562, "lng": -42.7099},
+      "brazopolis": {"lat": -22.4743, "lng": -45.6166},
+      "brumadinho": {"lat": -20.151, "lng": -44.2007},
+      "bueno brandao": {"lat": -22.4383, "lng": -46.3491},
+      "buenopolis": {"lat": -17.8744, "lng": -44.1775},
+      "bugre": {"lat": -19.4231, "lng": -42.2552},
+      "buritis": {"lat": -15.6218, "lng": -46.4221},
+      "buritizeiro": {"lat": -17.3656, "lng": -44.9606},
+      "cabeceira grande": {"lat": -16.0335, "lng": -47.0862},
+      "cabo verde": {"lat": -21.4699, "lng": -46.3919},
+      "cachoeira da prata": {"lat": -19.521, "lng": -44.4544},
+      "cachoeira de minas": {"lat": -22.3511, "lng": -45.7809},
+      "cachoeira de pajeu": {"lat": -15.9688, "lng": -41.4948},
+      "cachoeira dourada": {"lat": -18.5161, "lng": -49.5039},
+      "caetanopolis": {"lat": -19.2971, "lng": -44.4189},
+      "caete": {"lat": -19.8826, "lng": -43.6704},
+      "caiana": {"lat": -20.6956, "lng": -41.9292},
+      "cajuri": {"lat": -20.7903, "lng": -42.7925},
+      "caldas": {"lat": -21.9183, "lng": -46.3843},
+      "camacho": {"lat": -20.6294, "lng": -45.1593},
+      "camanducaia": {"lat": -22.7515, "lng": -46.1494},
+      "cambui": {"lat": -22.6115, "lng": -46.0572},
+      "cambuquira": {"lat": -21.854, "lng": -45.2896},
+      "campanario": {"lat": -18.2427, "lng": -41.7355},
+      "campanha": {"lat": -21.836, "lng": -45.4004},
+      "campestre": {"lat": -21.7079, "lng": -46.2381},
+      "campina verde": {"lat": -19.5382, "lng": -49.4862},
+      "campo azul": {"lat": -16.5028, "lng": -44.8096},
+      "campo belo": {"lat": -20.8932, "lng": -45.2699},
+      "campo do meio": {"lat": -21.1127, "lng": -45.8273},
+      "campo florido": {"lat": -19.7631, "lng": -48.5716},
+      "campos altos": {"lat": -19.6914, "lng": -46.1725},
+      "campos gerais": {"lat": -21.237, "lng": -45.7569},
+      "cana verde": {"lat": -21.0232, "lng": -45.1801},
+      "canaa": {"lat": -20.6869, "lng": -42.6167},
+      "canapolis": {"lat": -18.7212, "lng": -49.2035},
+      "candeias": {"lat": -20.7692, "lng": -45.2765},
+      "cantagalo": {"lat": -18.5248, "lng": -42.6223},
+      "caparao": {"lat": -20.5289, "lng": -41.9061},
+      "capela nova": {"lat": -20.9179, "lng": -43.622},
+      "capelinha": {"lat": -17.6888, "lng": -42.5147},
+      "capetinga": {"lat": -20.6163, "lng": -47.0571},
+      "capim branco": {"lat": -19.5471, "lng": -44.1304},
+      "capinopolis": {"lat": -18.6862, "lng": -49.5706},
+      "capitao andrade": {"lat": -19.0748, "lng": -41.8614},
+      "capitao eneas": {"lat": -16.3265, "lng": -43.7084},
+      "capitolio": {"lat": -20.6164, "lng": -46.0493},
+      "caputira": {"lat": -20.1703, "lng": -42.2683},
+      "carai": {"lat": -17.1862, "lng": -41.7004},
+      "caranaiba": {"lat": -20.8707, "lng": -43.7417},
+      "carandai": {"lat": -20.9566, "lng": -43.811},
+      "carangola": {"lat": -20.7343, "lng": -42.0313},
+      "caratinga": {"lat": -19.7868, "lng": -42.1292},
+      "carbonita": {"lat": -17.5255, "lng": -43.0137},
+      "careacu": {"lat": -22.0424, "lng": -45.696},
+      "carlos chagas": {"lat": -17.6973, "lng": -40.7723},
+      "carmesia": {"lat": -19.0877, "lng": -43.1382},
+      "carmo da cachoeira": {"lat": -21.4633, "lng": -45.2201},
+      "carmo da mata": {"lat": -20.5575, "lng": -44.8735},
+      "carmo de minas": {"lat": -22.1204, "lng": -45.1307},
+      "carmo do cajuru": {"lat": -20.1912, "lng": -44.7664},
+      "carmo do paranaiba": {"lat": -18.991, "lng": -46.3167},
+      "carmo do rio claro": {"lat": -20.9736, "lng": -46.1149},
+      "carmopolis de minas": {"lat": -20.5396, "lng": -44.6336},
+      "carneirinho": {"lat": -19.6987, "lng": -50.6894},
+      "carrancas": {"lat": -21.4898, "lng": -44.6446},
+      "carvalhopolis": {"lat": -21.7735, "lng": -45.8421},
+      "carvalhos": {"lat": -22.0, "lng": -44.4632},
+      "casa grande": {"lat": -20.7925, "lng": -43.9343},
+      "cascalho rico": {"lat": -18.5772, "lng": -47.8716},
+      "cassia": {"lat": -20.5831, "lng": -46.9201},
+      "cataguases": {"lat": -21.3924, "lng": -42.6896},
+      "catas altas": {"lat": -20.0734, "lng": -43.4061},
+      "catas altas da noruega": {"lat": -20.6901, "lng": -43.4939},
+      "catuji": {"lat": -17.3018, "lng": -41.5276},
+      "catuti": {"lat": -15.3616, "lng": -42.9627},
+      "caxambu": {"lat": -21.9753, "lng": -44.9319},
+      "cedro do abaete": {"lat": -19.1458, "lng": -45.712},
+      "central de minas": {"lat": -18.7612, "lng": -41.3143},
+      "centralina": {"lat": -18.5852, "lng": -49.2014},
+      "chacara": {"lat": -21.6733, "lng": -43.215},
+      "chale": {"lat": -20.0453, "lng": -41.6897},
+      "chapada do norte": {"lat": -17.0881, "lng": -42.5392},
+      "chapada gaucha": {"lat": -15.3014, "lng": -45.6116},
+      "chiador": {"lat": -21.9996, "lng": -43.0617},
+      "cipotanea": {"lat": -20.9026, "lng": -43.3629},
+      "claraval": {"lat": -20.397, "lng": -47.2768},
+      "claro dos pocoes": {"lat": -17.082, "lng": -44.2061},
+      "claudio": {"lat": -20.4437, "lng": -44.7673},
+      "coimbra": {"lat": -20.8535, "lng": -42.8008},
+      "coluna": {"lat": -18.2311, "lng": -42.8352},
+      "comendador gomes": {"lat": -19.6973, "lng": -49.0789},
+      "comercinho": {"lat": -16.2963, "lng": -41.7945},
+      "conceicao da aparecida": {"lat": -21.096, "lng": -46.2049},
+      "conceicao da barra de minas": {"lat": -21.1316, "lng": -44.4729},
+      "conceicao das alagoas": {"lat": -19.9172, "lng": -48.3839},
+      "conceicao das pedras": {"lat": -22.1576, "lng": -45.4562},
+      "conceicao de ipanema": {"lat": -19.9326, "lng": -41.6908},
+      "conceicao do mato dentro": {"lat": -19.0344, "lng": -43.4221},
+      "conceicao do para": {"lat": -19.7456, "lng": -44.8945},
+      "conceicao do rio verde": {"lat": -21.8778, "lng": -45.087},
+      "conceicao dos ouros": {"lat": -22.4078, "lng": -45.7996},
+      "conego marinho": {"lat": -15.2892, "lng": -44.4181},
+      "confins": {"lat": -19.6282, "lng": -43.9931},
+      "congonhal": {"lat": -22.1488, "lng": -46.043},
+      "congonhas": {"lat": -20.4958, "lng": -43.851},
+      "congonhas do norte": {"lat": -18.8021, "lng": -43.6767},
+      "conquista": {"lat": -19.9312, "lng": -47.5492},
+      "conselheiro lafaiete": {"lat": -20.6634, "lng": -43.7846},
+      "conselheiro pena": {"lat": -19.1789, "lng": -41.4736},
+      "consolacao": {"lat": -22.5493, "lng": -45.9255},
+      "contagem": {"lat": -19.9321, "lng": -44.0539},
+      "coqueiral": {"lat": -21.1858, "lng": -45.4366},
+      "coracao de jesus": {"lat": -16.6841, "lng": -44.3635},
+      "cordisburgo": {"lat": -19.1224, "lng": -44.3224},
+      "cordislandia": {"lat": -21.7891, "lng": -45.6999},
+      "corinto": {"lat": -18.369, "lng": -44.4542},
+      "coroaci": {"lat": -18.6156, "lng": -42.2791},
+      "coromandel": {"lat": -18.4734, "lng": -47.1933},
+      "coronel fabriciano": {"lat": -19.5179, "lng": -42.6276},
+      "coronel murta": {"lat": -16.6148, "lng": -42.184},
+      "coronel pacheco": {"lat": -21.5898, "lng": -43.256},
+      "coronel xavier chaves": {"lat": -21.0277, "lng": -44.2206},
+      "corrego danta": {"lat": -19.8198, "lng": -45.9032},
+      "corrego do bom jesus": {"lat": -22.6269, "lng": -46.0241},
+      "corrego fundo": {"lat": -20.4474, "lng": -45.5617},
+      "corrego novo": {"lat": -19.8361, "lng": -42.3988},
+      "couto de magalhaes de minas": {"lat": -18.0727, "lng": -43.4648},
+      "crisolita": {"lat": -17.2381, "lng": -40.9184},
+      "cristais": {"lat": -20.8733, "lng": -45.5167},
+      "cristalia": {"lat": -16.716, "lng": -42.8571},
+      "cristiano otoni": {"lat": -20.8324, "lng": -43.8166},
+      "cristina": {"lat": -22.208, "lng": -45.2673},
+      "crucilandia": {"lat": -20.3923, "lng": -44.3334},
+      "cruzeiro da fortaleza": {"lat": -18.944, "lng": -46.6669},
+      "cruzilia": {"lat": -21.84, "lng": -44.8067},
+      "cuparaque": {"lat": -18.9648, "lng": -41.0986},
+      "curral de dentro": {"lat": -15.9327, "lng": -41.8557},
+      "curvelo": {"lat": -18.7527, "lng": -44.4303},
+      "datas": {"lat": -18.4478, "lng": -43.6591},
+      "delfim moreira": {"lat": -22.5036, "lng": -45.2792},
+      "delfinopolis": {"lat": -20.3468, "lng": -46.8456},
+      "delta": {"lat": -19.9721, "lng": -47.7841},
+      "descoberto": {"lat": -21.46, "lng": -42.9618},
+      "desterro de entre rios": {"lat": -20.665, "lng": -44.3334},
+      "desterro do melo": {"lat": -21.143, "lng": -43.5178},
+      "diamantina": {"lat": -18.2413, "lng": -43.6031},
+      "diogo de vasconcelos": {"lat": -20.4879, "lng": -43.1953},
+      "dionisio": {"lat": -19.8433, "lng": -42.7701},
+      "divinesia": {"lat": -20.9917, "lng": -43.0003},
+      "divino": {"lat": -20.6134, "lng": -42.1438},
+      "divino das laranjeiras": {"lat": -18.7755, "lng": -41.4781},
+      "divinolandia de minas": {"lat": -18.8004, "lng": -42.6103},
+      "divinopolis": {"lat": -20.1446, "lng": -44.8912},
+      "divisa alegre": {"lat": -15.7221, "lng": -41.3463},
+      "divisa nova": {"lat": -21.5092, "lng": -46.1904},
+      "divisopolis": {"lat": -15.7254, "lng": -40.9997},
+      "dom bosco": {"lat": -16.652, "lng": -46.2597},
+      "dom cavati": {"lat": -19.3735, "lng": -42.1121},
+      "dom joaquim": {"lat": -18.961, "lng": -43.2544},
+      "dom silverio": {"lat": -20.1627, "lng": -42.9627},
+      "dom vicoso": {"lat": -22.2511, "lng": -45.1643},
+      "dona eusebia": {"lat": -21.319, "lng": -42.807},
+      "dores de campos": {"lat": -21.1139, "lng": -44.0207},
+      "dores de guanhaes": {"lat": -19.0516, "lng": -42.9254},
+      "dores do indaia": {"lat": -19.4628, "lng": -45.5927},
+      "dores do turvo": {"lat": -20.9785, "lng": -43.1834},
+      "doresopolis": {"lat": -20.2868, "lng": -45.9007},
+      "douradoquara": {"lat": -18.4338, "lng": -47.5993},
+      "durande": {"lat": -20.2058, "lng": -41.7977},
+      "eloi mendes": {"lat": -21.6088, "lng": -45.5691},
+      "engenheiro caldas": {"lat": -19.2065, "lng": -42.0503},
+      "engenheiro navarro": {"lat": -17.2831, "lng": -43.947},
+      "entre folhas": {"lat": -19.6218, "lng": -42.2306},
+      "entre rios de minas": {"lat": -20.6706, "lng": -44.0654},
+      "ervalia": {"lat": -20.8403, "lng": -42.6544},
+      "esmeraldas": {"lat": -19.764, "lng": -44.3065},
+      "espera feliz": {"lat": -20.6508, "lng": -41.9119},
+      "espinosa": {"lat": -14.9249, "lng": -42.809},
+      "espirito santo do dourado": {"lat": -22.0454, "lng": -45.9548},
+      "estiva": {"lat": -22.4577, "lng": -46.0191},
+      "estrela dalva": {"lat": -21.7412, "lng": -42.4574},
+      "estrela do indaia": {"lat": -19.5169, "lng": -45.7859},
+      "estrela do sul": {"lat": -18.7399, "lng": -47.6956},
+      "eugenopolis": {"lat": -21.1002, "lng": -42.1878},
+      "ewbank da camara": {"lat": -21.5498, "lng": -43.5068},
+      "extrema": {"lat": -22.854, "lng": -46.3178},
+      "fama": {"lat": -21.4089, "lng": -45.8286},
+      "faria lemos": {"lat": -20.8097, "lng": -42.0213},
+      "felicio dos santos": {"lat": -18.0755, "lng": -43.2422},
+      "felisburgo": {"lat": -16.6348, "lng": -40.7605},
+      "felixlandia": {"lat": -18.7507, "lng": -44.9004},
+      "fernandes tourinho": {"lat": -19.1541, "lng": -42.0803},
+      "ferros": {"lat": -19.2343, "lng": -43.0192},
+      "fervedouro": {"lat": -20.726, "lng": -42.279},
+      "florestal": {"lat": -19.888, "lng": -44.4318},
+      "formiga": {"lat": -20.4618, "lng": -45.4268},
+      "formoso": {"lat": -14.9446, "lng": -46.2371},
+      "fortaleza de minas": {"lat": -20.8508, "lng": -46.712},
+      "fortuna de minas": {"lat": -19.5578, "lng": -44.4472},
+      "francisco badaro": {"lat": -16.9883, "lng": -42.3568},
+      "francisco dumont": {"lat": -17.3107, "lng": -44.2317},
+      "francisco sa": {"lat": -16.4827, "lng": -43.4896},
+      "franciscopolis": {"lat": -17.9578, "lng": -42.0094},
+      "frei gaspar": {"lat": -18.0709, "lng": -41.4325},
+      "frei inocencio": {"lat": -18.5556, "lng": -41.9121},
+      "frei lagonegro": {"lat": -18.1751, "lng": -42.7617},
+      "fronteira": {"lat": -20.2748, "lng": -49.1984},
+      "fronteira dos vales": {"lat": -16.8898, "lng": -40.923},
+      "fruta de leite": {"lat": -16.1225, "lng": -42.5288},
+      "frutal": {"lat": -20.0259, "lng": -48.9355},
+      "funilandia": {"lat": -19.3661, "lng": -44.061},
+      "galileia": {"lat": -19.0005, "lng": -41.5387},
+      "gameleiras": {"lat": -15.0829, "lng": -43.125},
+      "glaucilandia": {"lat": -16.8481, "lng": -43.692},
+      "goiabeira": {"lat": -18.9807, "lng": -41.2235},
+      "goiana": {"lat": -21.536, "lng": -43.1957},
+      "goncalves": {"lat": -22.6545, "lng": -45.8556},
+      "gonzaga": {"lat": -18.8196, "lng": -42.4769},
+      "gouveia": {"lat": -18.4519, "lng": -43.7423},
+      "governador valadares": {"lat": -18.8545, "lng": -41.9555},
+      "grao mogol": {"lat": -16.5662, "lng": -42.8923},
+      "grupiara": {"lat": -18.5003, "lng": -47.7318},
+      "guanhaes": {"lat": -18.7713, "lng": -42.9312},
+      "guape": {"lat": -20.7631, "lng": -45.9152},
+      "guaraciaba": {"lat": -20.5716, "lng": -43.0094},
+      "guaraciama": {"lat": -17.0142, "lng": -43.6675},
+      "guaranesia": {"lat": -21.3009, "lng": -46.7964},
+      "guarani": {"lat": -21.3563, "lng": -43.0328},
+      "guarara": {"lat": -21.7304, "lng": -43.0334},
+      "guarda-mor": {"lat": -17.7673, "lng": -47.0998},
+      "guaxupe": {"lat": -21.305, "lng": -46.7081},
+      "guidoval": {"lat": -21.155, "lng": -42.7887},
+      "guimarania": {"lat": -18.8425, "lng": -46.7901},
+      "guiricema": {"lat": -21.0098, "lng": -42.7207},
+      "gurinhata": {"lat": -19.2143, "lng": -49.7876},
+      "heliodora": {"lat": -22.0644, "lng": -45.5453},
+      "iapu": {"lat": -19.4387, "lng": -42.2147},
+      "ibertioga": {"lat": -21.433, "lng": -43.9639},
+      "ibia": {"lat": -19.4749, "lng": -46.5474},
+      "ibiai": {"lat": -16.8591, "lng": -44.9046},
+      "ibiracatu": {"lat": -15.6605, "lng": -44.1667},
+      "ibiraci": {"lat": -20.4611, "lng": -47.1222},
+      "ibirite": {"lat": -20.0252, "lng": -44.0569},
+      "ibitiura de minas": {"lat": -22.0604, "lng": -46.4368},
+      "ibituruna": {"lat": -21.1541, "lng": -44.7479},
+      "icarai de minas": {"lat": -16.214, "lng": -44.9034},
+      "igarape": {"lat": -20.0707, "lng": -44.2994},
+      "igaratinga": {"lat": -19.9476, "lng": -44.7063},
+      "iguatama": {"lat": -20.1776, "lng": -45.7111},
+      "ijaci": {"lat": -21.1738, "lng": -44.9233},
+      "ilicinea": {"lat": -20.9402, "lng": -45.8308},
+      "imbe de minas": {"lat": -19.6017, "lng": -41.9695},
+      "inconfidentes": {"lat": -22.3136, "lng": -46.3264},
+      "indaiabira": {"lat": -15.4911, "lng": -42.2005},
+      "indianopolis": {"lat": -19.0341, "lng": -47.9155},
+      "ingai": {"lat": -21.4024, "lng": -44.9152},
+      "inhapim": {"lat": -19.5476, "lng": -42.1147},
+      "inhauma": {"lat": -19.4898, "lng": -44.3934},
+      "inimutaba": {"lat": -18.7271, "lng": -44.3584},
+      "ipaba": {"lat": -19.4158, "lng": -42.4139},
+      "ipanema": {"lat": -19.7992, "lng": -41.7164},
+      "ipatinga": {"lat": -19.4703, "lng": -42.5476},
+      "ipiacu": {"lat": -18.6927, "lng": -49.9436},
+      "ipuiuna": {"lat": -22.1013, "lng": -46.1915},
+      "irai de minas": {"lat": -18.9819, "lng": -47.461},
+      "itabira": {"lat": -19.6239, "lng": -43.2312},
+      "itabirinha": {"lat": -18.5712, "lng": -41.234},
+      "itabirito": {"lat": -20.2501, "lng": -43.8038},
+      "itacambira": {"lat": -17.0625, "lng": -43.3069},
+      "itacarambi": {"lat": -15.089, "lng": -44.095},
+      "itaguara": {"lat": -20.3947, "lng": -44.4875},
+      "itaipe": {"lat": -17.4014, "lng": -41.6697},
+      "itajuba": {"lat": -22.4225, "lng": -45.4598},
+      "itamarandiba": {"lat": -17.8552, "lng": -42.8561},
+      "itamarati de minas": {"lat": -21.4179, "lng": -42.813},
+      "itambacuri": {"lat": -18.035, "lng": -41.683},
+      "itambe do mato dentro": {"lat": -19.4158, "lng": -43.3182},
+      "itamogi": {"lat": -21.0758, "lng": -47.046},
+      "itamonte": {"lat": -22.2859, "lng": -44.868},
+      "itanhandu": {"lat": -22.2942, "lng": -44.9382},
+      "itanhomi": {"lat": -19.1736, "lng": -41.863},
+      "itaobim": {"lat": -16.5571, "lng": -41.5017},
+      "itapagipe": {"lat": -19.9062, "lng": -49.3781},
+      "itapecerica": {"lat": -20.4704, "lng": -45.127},
+      "itapeva": {"lat": -22.7665, "lng": -46.2241},
+      "itatiaiucu": {"lat": -20.1983, "lng": -44.4211},
+      "itau de minas": {"lat": -20.7375, "lng": -46.7525},
+      "itauna": {"lat": -20.0818, "lng": -44.5801},
+      "itaverava": {"lat": -20.6769, "lng": -43.6141},
+      "itinga": {"lat": -16.61, "lng": -41.7672},
+      "itueta": {"lat": -19.3999, "lng": -41.1746},
+      "ituiutaba": {"lat": -18.9772, "lng": -49.4639},
+      "itumirim": {"lat": -21.3171, "lng": -44.8724},
+      "iturama": {"lat": -19.7276, "lng": -50.1966},
+      "itutinga": {"lat": -21.3, "lng": -44.6567},
+      "jaboticatubas": {"lat": -19.5119, "lng": -43.7373},
+      "jacinto": {"lat": -16.1428, "lng": -40.295},
+      "jacui": {"lat": -21.0137, "lng": -46.7359},
+      "jacutinga": {"lat": -22.286, "lng": -46.6166},
+      "jaguaracu": {"lat": -19.647, "lng": -42.7498},
+      "jaiba": {"lat": -15.3432, "lng": -43.6688},
+      "jampruca": {"lat": -18.461, "lng": -41.809},
+      "janauba": {"lat": -15.8022, "lng": -43.3132},
+      "januaria": {"lat": -15.4802, "lng": -44.3639},
+      "japaraiba": {"lat": -20.1442, "lng": -45.5015},
+      "japonvar": {"lat": -15.9891, "lng": -44.2758},
+      "jeceaba": {"lat": -20.5339, "lng": -43.9894},
+      "jenipapo de minas": {"lat": -17.0831, "lng": -42.2589},
+      "jequeri": {"lat": -20.4542, "lng": -42.6651},
+      "jequitai": {"lat": -17.229, "lng": -44.4376},
+      "jequitiba": {"lat": -19.2345, "lng": -44.0304},
+      "jequitinhonha": {"lat": -16.4375, "lng": -41.0117},
+      "jesuania": {"lat": -21.9887, "lng": -45.2911},
+      "joaima": {"lat": -16.6522, "lng": -41.0229},
+      "joanesia": {"lat": -19.1729, "lng": -42.6775},
+      "joao monlevade": {"lat": -19.8126, "lng": -43.1735},
+      "joao pinheiro": {"lat": -17.7398, "lng": -46.1715},
+      "joaquim felicio": {"lat": -17.758, "lng": -44.1643},
+      "jordania": {"lat": -15.9009, "lng": -40.1841},
+      "jose goncalves de minas": {"lat": -16.9053, "lng": -42.6014},
+      "jose raydan": {"lat": -18.2195, "lng": -42.4946},
+      "josenopolis": {"lat": -16.5417, "lng": -42.5151},
+      "juatuba": {"lat": -19.9448, "lng": -44.3451},
+      "juiz de fora": {"lat": -21.7595, "lng": -43.3398},
+      "juramento": {"lat": -16.8473, "lng": -43.5865},
+      "juruaia": {"lat": -21.2493, "lng": -46.5735},
+      "juvenilia": {"lat": -14.2662, "lng": -44.1597},
+      "ladainha": {"lat": -17.6279, "lng": -41.7488},
+      "lagamar": {"lat": -18.1759, "lng": -46.8063},
+      "lagoa da prata": {"lat": -20.0237, "lng": -45.5401},
+      "lagoa dos patos": {"lat": -16.978, "lng": -44.5754},
+      "lagoa dourada": {"lat": -20.9139, "lng": -44.0797},
+      "lagoa formosa": {"lat": -18.7715, "lng": -46.4012},
+      "lagoa grande": {"lat": -17.8323, "lng": -46.5165},
+      "lagoa santa": {"lat": -19.6397, "lng": -43.8932},
+      "lajinha": {"lat": -20.1539, "lng": -41.6228},
+      "lambari": {"lat": -21.9671, "lng": -45.3498},
+      "lamim": {"lat": -20.79, "lng": -43.4706},
+      "laranjal": {"lat": -21.3715, "lng": -42.4732},
+      "lassance": {"lat": -17.887, "lng": -44.5735},
+      "lavras": {"lat": -21.248, "lng": -45.0009},
+      "leandro ferreira": {"lat": -19.7193, "lng": -45.0279},
+      "leme do prado": {"lat": -17.0793, "lng": -42.6936},
+      "leopoldina": {"lat": -21.5296, "lng": -42.6421},
+      "liberdade": {"lat": -22.0275, "lng": -44.3208},
+      "lima duarte": {"lat": -21.8386, "lng": -43.7934},
+      "limeira do oeste": {"lat": -19.5512, "lng": -50.5815},
+      "lontra": {"lat": -15.9013, "lng": -44.306},
+      "luisburgo": {"lat": -20.4468, "lng": -42.0976},
+      "luislandia": {"lat": -16.1095, "lng": -44.5886},
+      "luminarias": {"lat": -21.5145, "lng": -44.9034},
+      "luz": {"lat": -19.7911, "lng": -45.6794},
+      "machacalis": {"lat": -17.0723, "lng": -40.7245},
+      "machado": {"lat": -21.6778, "lng": -45.9219},
+      "madre de deus de minas": {"lat": -21.483, "lng": -44.3287},
+      "malacacheta": {"lat": -17.8456, "lng": -42.0769},
+      "mamonas": {"lat": -15.0479, "lng": -42.9469},
+      "manga": {"lat": -14.7529, "lng": -43.9391},
+      "manhuacu": {"lat": -20.2572, "lng": -42.028},
+      "manhumirim": {"lat": -20.3591, "lng": -41.9589},
+      "mantena": {"lat": -18.7761, "lng": -40.9874},
+      "mar de espanha": {"lat": -21.8707, "lng": -43.0062},
+      "maravilhas": {"lat": -19.5076, "lng": -44.6779},
+      "maria da fe": {"lat": -22.3044, "lng": -45.3773},
+      "mariana": {"lat": -20.3765, "lng": -43.414},
+      "marilac": {"lat": -18.5079, "lng": -42.0822},
+      "mario campos": {"lat": -20.0582, "lng": -44.1883},
+      "maripa de minas": {"lat": -21.6979, "lng": -42.9546},
+      "marlieria": {"lat": -19.7096, "lng": -42.7327},
+      "marmelopolis": {"lat": -22.447, "lng": -45.1645},
+      "martinho campos": {"lat": -19.3306, "lng": -45.2434},
+      "martins soares": {"lat": -20.2546, "lng": -41.8786},
+      "mata verde": {"lat": -15.6869, "lng": -40.7366},
+      "materlandia": {"lat": -18.4699, "lng": -43.0579},
+      "mateus leme": {"lat": -19.9794, "lng": -44.4318},
+      "mathias lobato": {"lat": -18.59, "lng": -41.9166},
+      "matias barbosa": {"lat": -21.869, "lng": -43.3135},
+      "matias cardoso": {"lat": -14.8563, "lng": -43.9146},
+      "matipo": {"lat": -20.2873, "lng": -42.3401},
+      "mato verde": {"lat": -15.3944, "lng": -42.86},
+      "matozinhos": {"lat": -19.5543, "lng": -44.0868},
+      "matutina": {"lat": -19.2179, "lng": -45.9664},
+      "medeiros": {"lat": -19.9865, "lng": -46.2181},
+      "medina": {"lat": -16.2245, "lng": -41.4728},
+      "mendes pimentel": {"lat": -18.6631, "lng": -41.4052},
+      "merces": {"lat": -21.1976, "lng": -43.3337},
+      "mesquita": {"lat": -19.224, "lng": -42.6079},
+      "minas novas": {"lat": -17.2156, "lng": -42.5884},
+      "minduri": {"lat": -21.6797, "lng": -44.6051},
+      "mirabela": {"lat": -16.256, "lng": -44.1602},
+      "miradouro": {"lat": -20.8899, "lng": -42.3458},
+      "mirai": {"lat": -21.2021, "lng": -42.6122},
+      "miravania": {"lat": -14.7348, "lng": -44.4092},
+      "moeda": {"lat": -20.3399, "lng": -44.0509},
+      "moema": {"lat": -19.8387, "lng": -45.4127},
+      "monjolos": {"lat": -18.3245, "lng": -44.118},
+      "monsenhor paulo": {"lat": -21.7579, "lng": -45.5391},
+      "montalvania": {"lat": -14.4197, "lng": -44.3719},
+      "monte alegre de minas": {"lat": -18.869, "lng": -48.881},
+      "monte azul": {"lat": -15.1514, "lng": -42.8718},
+      "monte belo": {"lat": -21.3271, "lng": -46.3635},
+      "monte carmelo": {"lat": -18.7302, "lng": -47.4912},
+      "monte formoso": {"lat": -16.8691, "lng": -41.2473},
+      "monte santo de minas": {"lat": -21.1873, "lng": -46.9753},
+      "monte siao": {"lat": -22.4335, "lng": -46.573},
+      "montes claros": {"lat": -16.7282, "lng": -43.8578},
+      "montezuma": {"lat": -15.1702, "lng": -42.4941},
+      "morada nova de minas": {"lat": -18.5998, "lng": -45.3584},
+      "morro da garca": {"lat": -18.5356, "lng": -44.601},
+      "morro do pilar": {"lat": -19.2236, "lng": -43.3795},
+      "munhoz": {"lat": -22.6092, "lng": -46.362},
+      "muriae": {"lat": -21.13, "lng": -42.3693},
+      "mutum": {"lat": -19.8121, "lng": -41.4407},
+      "muzambinho": {"lat": -21.3692, "lng": -46.5213},
+      "nacip raydan": {"lat": -18.4544, "lng": -42.2481},
+      "nanuque": {"lat": -17.8481, "lng": -40.3533},
+      "naque": {"lat": -19.2291, "lng": -42.3312},
+      "natalandia": {"lat": -16.5021, "lng": -46.4874},
+      "natercia": {"lat": -22.1158, "lng": -45.5123},
+      "nazareno": {"lat": -21.2168, "lng": -44.6138},
+      "nepomuceno": {"lat": -21.2324, "lng": -45.235},
+      "ninheira": {"lat": -15.3148, "lng": -41.7564},
+      "nova belem": {"lat": -18.4925, "lng": -41.1107},
+      "nova era": {"lat": -19.7577, "lng": -43.0333},
+      "nova lima": {"lat": -19.9758, "lng": -43.8509},
+      "nova modica": {"lat": -18.4417, "lng": -41.4984},
+      "nova ponte": {"lat": -19.1461, "lng": -47.6779},
+      "nova porteirinha": {"lat": -15.7993, "lng": -43.2941},
+      "nova resende": {"lat": -21.1286, "lng": -46.4157},
+      "nova serrana": {"lat": -19.8713, "lng": -44.9847},
+      "nova uniao": {"lat": -19.6876, "lng": -43.583},
+      "novo cruzeiro": {"lat": -17.4654, "lng": -41.8826},
+      "novo oriente de minas": {"lat": -17.4089, "lng": -41.2194},
+      "novorizonte": {"lat": -16.0162, "lng": -42.4044},
+      "olaria": {"lat": -21.8598, "lng": -43.9356},
+      "olhos d'agua": {"lat": -17.3982, "lng": -43.5719},
+      "olimpio noronha": {"lat": -22.0685, "lng": -45.2657},
+      "oliveira": {"lat": -20.6982, "lng": -44.829},
+      "oliveira fortes": {"lat": -21.3401, "lng": -43.4499},
+      "onca de pitangui": {"lat": -19.7276, "lng": -44.8058},
+      "oratorios": {"lat": -20.4298, "lng": -42.7977},
+      "orizania": {"lat": -20.5142, "lng": -42.1991},
+      "ouro branco": {"lat": -20.5263, "lng": -43.6962},
+      "ouro fino": {"lat": -22.2779, "lng": -46.3716},
+      "ouro preto": {"lat": -20.3796, "lng": -43.512},
+      "ouro verde de minas": {"lat": -18.0719, "lng": -41.2734},
+      "padre carvalho": {"lat": -16.3646, "lng": -42.5088},
+      "padre paraiso": {"lat": -17.0758, "lng": -41.4821},
+      "pai pedro": {"lat": -15.5271, "lng": -43.07},
+      "paineiras": {"lat": -18.8993, "lng": -45.5321},
+      "pains": {"lat": -20.3705, "lng": -45.6627},
+      "paiva": {"lat": -21.2913, "lng": -43.4088},
+      "palma": {"lat": -21.3748, "lng": -42.3123},
+      "palmopolis": {"lat": -16.7364, "lng": -40.4296},
+      "papagaios": {"lat": -19.4419, "lng": -44.7468},
+      "para de minas": {"lat": -19.8534, "lng": -44.6114},
+      "paracatu": {"lat": -17.2252, "lng": -46.8711},
+      "paraguacu": {"lat": -21.5465, "lng": -45.7374},
+      "paraisopolis": {"lat": -22.5539, "lng": -45.7803},
+      "paraopeba": {"lat": -19.2732, "lng": -44.4044},
+      "passa quatro": {"lat": -22.3871, "lng": -44.9709},
+      "passa tempo": {"lat": -20.6539, "lng": -44.4926},
+      "passa-vinte": {"lat": -22.2097, "lng": -44.2344},
+      "passabem": {"lat": -19.3509, "lng": -43.1383},
+      "passos": {"lat": -20.7193, "lng": -46.609},
+      "patis": {"lat": -16.0773, "lng": -44.0787},
+      "patos de minas": {"lat": -18.5699, "lng": -46.5013},
+      "patrocinio": {"lat": -18.9379, "lng": -46.9934},
+      "patrocinio do muriae": {"lat": -21.1544, "lng": -42.2125},
+      "paula candido": {"lat": -20.8754, "lng": -42.9752},
+      "paulistas": {"lat": -18.4276, "lng": -42.8628},
+      "pavao": {"lat": -17.4267, "lng": -41.0035},
+      "pecanha": {"lat": -18.5441, "lng": -42.5583},
+      "pedra azul": {"lat": -16.0086, "lng": -41.2909},
+      "pedra bonita": {"lat": -20.5219, "lng": -42.3304},
+      "pedra do anta": {"lat": -20.5968, "lng": -42.7123},
+      "pedra do indaia": {"lat": -20.2563, "lng": -45.2107},
+      "pedra dourada": {"lat": -20.8266, "lng": -42.1515},
+      "pedralva": {"lat": -22.2386, "lng": -45.4654},
+      "pedras de maria da cruz": {"lat": -15.6032, "lng": -44.391},
+      "pedrinopolis": {"lat": -19.2241, "lng": -47.4579},
+      "pedro leopoldo": {"lat": -19.6308, "lng": -44.0383},
+      "pedro teixeira": {"lat": -21.7076, "lng": -43.743},
+      "pequeri": {"lat": -21.8341, "lng": -43.1145},
+      "pequi": {"lat": -19.6284, "lng": -44.6604},
+      "perdigao": {"lat": -19.9411, "lng": -45.078},
+      "perdizes": {"lat": -19.3434, "lng": -47.2963},
+      "perdoes": {"lat": -21.0932, "lng": -45.0896},
+      "periquito": {"lat": -19.1573, "lng": -42.2333},
+      "pescador": {"lat": -18.357, "lng": -41.6006},
+      "piau": {"lat": -21.5096, "lng": -43.313},
+      "piedade de caratinga": {"lat": -19.7593, "lng": -42.0756},
+      "piedade de ponte nova": {"lat": -20.2438, "lng": -42.7379},
+      "piedade do rio grande": {"lat": -21.469, "lng": -44.1938},
+      "piedade dos gerais": {"lat": -20.4715, "lng": -44.2243},
+      "pimenta": {"lat": -20.4827, "lng": -45.8049},
+      "pingo-d'agua": {"lat": -19.7287, "lng": -42.4095},
+      "pintopolis": {"lat": -16.0572, "lng": -45.1402},
+      "piracema": {"lat": -20.5089, "lng": -44.4783},
+      "pirajuba": {"lat": -19.9092, "lng": -48.7027},
+      "piranga": {"lat": -20.6834, "lng": -43.2967},
+      "pirangucu": {"lat": -22.5249, "lng": -45.4945},
+      "piranguinho": {"lat": -22.395, "lng": -45.5324},
+      "pirapetinga": {"lat": -21.6554, "lng": -42.3434},
+      "pirapora": {"lat": -17.3392, "lng": -44.934},
+      "pirauba": {"lat": -21.2825, "lng": -43.0172},
+      "pitangui": {"lat": -19.6741, "lng": -44.8964},
+      "piumhi": {"lat": -20.4762, "lng": -45.9589},
+      "planura": {"lat": -20.1376, "lng": -48.7},
+      "poco fundo": {"lat": -21.78, "lng": -45.9658},
+      "pocos de caldas": {"lat": -21.78, "lng": -46.5692},
+      "pocrane": {"lat": -19.6208, "lng": -41.6334},
+      "pompeu": {"lat": -19.2257, "lng": -45.0141},
+      "ponte nova": {"lat": -20.4111, "lng": -42.8978},
+      "ponto chique": {"lat": -16.6282, "lng": -45.0588},
+      "ponto dos volantes": {"lat": -16.7473, "lng": -41.5025},
+      "porteirinha": {"lat": -15.7404, "lng": -43.0281},
+      "porto firme": {"lat": -20.6642, "lng": -43.0834},
+      "pote": {"lat": -17.8077, "lng": -41.786},
+      "pouso alegre": {"lat": -22.2266, "lng": -45.9389},
+      "pouso alto": {"lat": -22.1964, "lng": -44.9748},
+      "prados": {"lat": -21.0597, "lng": -44.0778},
+      "prata": {"lat": -19.3086, "lng": -48.9276},
+      "pratapolis": {"lat": -20.7411, "lng": -46.8624},
+      "pratinha": {"lat": -19.739, "lng": -46.3755},
+      "presidente bernardes": {"lat": -20.7656, "lng": -43.1895},
+      "presidente juscelino": {"lat": -18.6401, "lng": -44.06},
+      "presidente kubitschek": {"lat": -18.6193, "lng": -43.5628},
+      "presidente olegario": {"lat": -18.4096, "lng": -46.4165},
+      "prudente de morais": {"lat": -19.4742, "lng": -44.1591},
+      "quartel geral": {"lat": -19.2703, "lng": -45.5569},
+      "queluzito": {"lat": -20.7416, "lng": -43.8851},
+      "raposos": {"lat": -19.9636, "lng": -43.8079},
+      "raul soares": {"lat": -20.1061, "lng": -42.4502},
+      "recreio": {"lat": -21.5289, "lng": -42.4676},
+      "reduto": {"lat": -20.2401, "lng": -41.9848},
+      "resende costa": {"lat": -20.9171, "lng": -44.2407},
+      "resplendor": {"lat": -19.3194, "lng": -41.2462},
+      "ressaquinha": {"lat": -21.0642, "lng": -43.7598},
+      "riachinho": {"lat": -16.2258, "lng": -45.9888},
+      "riacho dos machados": {"lat": -16.0091, "lng": -43.0488},
+      "ribeirao das neves": {"lat": -19.7621, "lng": -44.0844},
+      "ribeirao vermelho": {"lat": -21.1879, "lng": -45.0637},
+      "rio acima": {"lat": -20.0876, "lng": -43.7878},
+      "rio casca": {"lat": -20.2285, "lng": -42.6462},
+      "rio do prado": {"lat": -16.6056, "lng": -40.5714},
+      "rio doce": {"lat": -20.2412, "lng": -42.8995},
+      "rio espera": {"lat": -20.855, "lng": -43.4721},
+      "rio manso": {"lat": -20.2666, "lng": -44.3069},
+      "rio novo": {"lat": -21.4649, "lng": -43.1168},
+      "rio paranaiba": {"lat": -19.1861, "lng": -46.2455},
+      "rio pardo de minas": {"lat": -15.616, "lng": -42.5405},
+      "rio piracicaba": {"lat": -19.9284, "lng": -43.1829},
+      "rio pomba": {"lat": -21.2712, "lng": -43.1696},
+      "rio preto": {"lat": -22.0861, "lng": -43.8293},
+      "rio vermelho": {"lat": -18.2922, "lng": -43.0018},
+      "ritapolis": {"lat": -21.0276, "lng": -44.3204},
+      "rochedo de minas": {"lat": -21.6284, "lng": -43.0165},
+      "rodeiro": {"lat": -21.2035, "lng": -42.8586},
+      "romaria": {"lat": -18.8838, "lng": -47.5782},
+      "rosario da limeira": {"lat": -20.9812, "lng": -42.5112},
+      "rubelita": {"lat": -16.4053, "lng": -42.261},
+      "rubim": {"lat": -16.3775, "lng": -40.5397},
+      "sabara": {"lat": -19.884, "lng": -43.8263},
+      "sabinopolis": {"lat": -18.6653, "lng": -43.0752},
+      "sacramento": {"lat": -19.8622, "lng": -47.4508},
+      "salinas": {"lat": -16.1753, "lng": -42.2964},
+      "salto da divisa": {"lat": -16.0063, "lng": -39.9391},
+      "santa barbara": {"lat": -19.9604, "lng": -43.4101},
+      "santa barbara do leste": {"lat": -19.9753, "lng": -42.1457},
+      "santa barbara do monte verde": {"lat": -21.9592, "lng": -43.7027},
+      "santa barbara do tugurio": {"lat": -21.2431, "lng": -43.5607},
+      "santa cruz de minas": {"lat": -21.1241, "lng": -44.2202},
+      "santa cruz de salinas": {"lat": -16.0967, "lng": -41.7418},
+      "santa cruz do escalvado": {"lat": -20.2372, "lng": -42.8169},
+      "santa efigenia de minas": {"lat": -18.8235, "lng": -42.4388},
+      "santa fe de minas": {"lat": -16.6859, "lng": -45.4102},
+      "santa helena de minas": {"lat": -16.9707, "lng": -40.6727},
+      "santa juliana": {"lat": -19.3108, "lng": -47.5322},
+      "santa luzia": {"lat": -19.7548, "lng": -43.8497},
+      "santa margarida": {"lat": -20.3839, "lng": -42.2519},
+      "santa maria de itabira": {"lat": -19.4431, "lng": -43.1064},
+      "santa maria do salto": {"lat": -16.2479, "lng": -40.1512},
+      "santa maria do suacui": {"lat": -18.1896, "lng": -42.4139},
+      "santa rita de caldas": {"lat": -22.0292, "lng": -46.3385},
+      "santa rita de ibitipoca": {"lat": -21.5658, "lng": -43.9163},
+      "santa rita de jacutinga": {"lat": -22.1474, "lng": -44.0977},
+      "santa rita de minas": {"lat": -19.876, "lng": -42.1363},
+      "santa rita do itueto": {"lat": -19.3576, "lng": -41.3821},
+      "santa rita do sapucai": {"lat": -22.2461, "lng": -45.7034},
+      "santa rosa da serra": {"lat": -19.5186, "lng": -45.9611},
+      "santa vitoria": {"lat": -18.8414, "lng": -50.1208},
+      "santana da vargem": {"lat": -21.2449, "lng": -45.5005},
+      "santana de cataguases": {"lat": -21.2893, "lng": -42.5524},
+      "santana de pirapama": {"lat": -18.9962, "lng": -44.0409},
+      "santana do deserto": {"lat": -21.9512, "lng": -43.1583},
+      "santana do garambeu": {"lat": -21.5983, "lng": -44.105},
+      "santana do jacare": {"lat": -20.9007, "lng": -45.1285},
+      "santana do manhuacu": {"lat": -20.1031, "lng": -41.9278},
+      "santana do paraiso": {"lat": -19.3661, "lng": -42.5446},
+      "santana do riacho": {"lat": -19.1662, "lng": -43.722},
+      "santana dos montes": {"lat": -20.7868, "lng": -43.6949},
+      "santo antonio do amparo": {"lat": -20.943, "lng": -44.9176},
+      "santo antonio do aventureiro": {"lat": -21.7606, "lng": -42.8115},
+      "santo antonio do grama": {"lat": -20.3185, "lng": -42.6047},
+      "santo antonio do itambe": {"lat": -18.4609, "lng": -43.3006},
+      "santo antonio do jacinto": {"lat": -16.5332, "lng": -40.1817},
+      "santo antonio do monte": {"lat": -20.085, "lng": -45.2947},
+      "santo antonio do retiro": {"lat": -15.3393, "lng": -42.6171},
+      "santo antonio do rio abaixo": {"lat": -19.2374, "lng": -43.2604},
+      "santo hipolito": {"lat": -18.2968, "lng": -44.2229},
+      "santos dumont": {"lat": -21.4634, "lng": -43.5499},
+      "sao bento abade": {"lat": -21.5839, "lng": -45.0699},
+      "sao bras do suacui": {"lat": -20.6242, "lng": -43.9515},
+      "sao domingos das dores": {"lat": -19.5246, "lng": -42.0106},
+      "sao domingos do prata": {"lat": -19.8678, "lng": -42.971},
+      "sao felix de minas": {"lat": -18.5959, "lng": -41.4889},
+      "sao francisco": {"lat": -15.9514, "lng": -44.8593},
+      "sao francisco de paula": {"lat": -20.7036, "lng": -44.9838},
+      "sao francisco de sales": {"lat": -19.8611, "lng": -49.7727},
+      "sao francisco do gloria": {"lat": -20.7923, "lng": -42.2673},
+      "sao geraldo": {"lat": -20.9252, "lng": -42.8364},
+      "sao geraldo da piedade": {"lat": -18.8411, "lng": -42.2867},
+      "sao geraldo do baixio": {"lat": -18.9097, "lng": -41.363},
+      "sao goncalo do abaete": {"lat": -18.3315, "lng": -45.8265},
+      "sao goncalo do para": {"lat": -19.9822, "lng": -44.8593},
+      "sao goncalo do rio abaixo": {"lat": -19.8221, "lng": -43.366},
+      "sao goncalo do rio preto": {"lat": -18.0025, "lng": -43.3854},
+      "sao goncalo do sapucai": {"lat": -21.8932, "lng": -45.5893},
+      "sao gotardo": {"lat": -19.3087, "lng": -46.0465},
+      "sao joao batista do gloria": {"lat": -20.635, "lng": -46.508},
+      "sao joao da lagoa": {"lat": -16.8455, "lng": -44.3507},
+      "sao joao da mata": {"lat": -21.928, "lng": -45.9297},
+      "sao joao da ponte": {"lat": -15.9271, "lng": -44.0096},
+      "sao joao das missoes": {"lat": -14.8859, "lng": -44.0922},
+      "sao joao del rei": {"lat": -21.1311, "lng": -44.2526},
+      "sao joao do manhuacu": {"lat": -20.3933, "lng": -42.1533},
+      "sao joao do manteninha": {"lat": -18.723, "lng": -41.1628},
+      "sao joao do oriente": {"lat": -19.3384, "lng": -42.1575},
+      "sao joao do pacui": {"lat": -16.5373, "lng": -44.5134},
+      "sao joao do paraiso": {"lat": -15.3168, "lng": -42.0213},
+      "sao joao evangelista": {"lat": -18.548, "lng": -42.7655},
+      "sao joao nepomuceno": {"lat": -21.5381, "lng": -43.0069},
+      "sao joaquim de bicas": {"lat": -20.048, "lng": -44.2749},
+      "sao jose da barra": {"lat": -20.7178, "lng": -46.313},
+      "sao jose da lapa": {"lat": -19.6971, "lng": -43.9586},
+      "sao jose da safira": {"lat": -18.3243, "lng": -42.1431},
+      "sao jose da varginha": {"lat": -19.7006, "lng": -44.556},
+      "sao jose do alegre": {"lat": -22.3243, "lng": -45.5258},
+      "sao jose do divino": {"lat": -18.4793, "lng": -41.3907},
+      "sao jose do goiabal": {"lat": -19.9214, "lng": -42.7035},
+      "sao jose do jacuri": {"lat": -18.281, "lng": -42.6729},
+      "sao jose do mantimento": {"lat": -20.0058, "lng": -41.7486},
+      "sao lourenco": {"lat": -22.1166, "lng": -45.0506},
+      "sao miguel do anta": {"lat": -20.7067, "lng": -42.7174},
+      "sao pedro da uniao": {"lat": -21.131, "lng": -46.6123},
+      "sao pedro do suacui": {"lat": -18.3609, "lng": -42.5981},
+      "sao pedro dos ferros": {"lat": -20.1732, "lng": -42.5251},
+      "sao romao": {"lat": -16.3641, "lng": -45.0749},
+      "sao roque de minas": {"lat": -20.249, "lng": -46.3639},
+      "sao sebastiao da bela vista": {"lat": -22.1583, "lng": -45.7546},
+      "sao sebastiao da vargem alegre": {"lat": -19.7477, "lng": -43.3679},
+      "sao sebastiao do anta": {"lat": -19.5064, "lng": -41.985},
+      "sao sebastiao do maranhao": {"lat": -18.0873, "lng": -42.5659},
+      "sao sebastiao do oeste": {"lat": -20.2758, "lng": -45.0063},
+      "sao sebastiao do paraiso": {"lat": -20.9167, "lng": -46.9837},
+      "sao sebastiao do rio preto": {"lat": -19.2959, "lng": -43.1757},
+      "sao sebastiao do rio verde": {"lat": -22.2183, "lng": -44.9761},
+      "sao thome das letras": {"lat": -21.7218, "lng": -44.9849},
+      "sao tiago": {"lat": -20.9075, "lng": -44.5098},
+      "sao tomas de aquino": {"lat": -20.7791, "lng": -47.0962},
+      "sao vicente de minas": {"lat": -21.7042, "lng": -44.4431},
+      "sapucai-mirim": {"lat": -22.7409, "lng": -45.738},
+      "sardoa": {"lat": -18.7828, "lng": -42.3629},
+      "sarzedo": {"lat": -20.0367, "lng": -44.1446},
+      "sem-peixe": {"lat": -20.1008, "lng": -42.8483},
+      "senador amaral": {"lat": -22.5869, "lng": -46.1763},
+      "senador cortes": {"lat": -21.7986, "lng": -42.9424},
+      "senador firmino": {"lat": -20.9158, "lng": -43.0904},
+      "senador jose bento": {"lat": -22.1633, "lng": -46.1792},
+      "senador modestino goncalves": {"lat": -17.9465, "lng": -43.2172},
+      "senhora de oliveira": {"lat": -20.7972, "lng": -43.3394},
+      "senhora do porto": {"lat": -18.8909, "lng": -43.0799},
+      "senhora dos remedios": {"lat": -21.0351, "lng": -43.5812},
+      "sericita": {"lat": -20.4748, "lng": -42.4828},
+      "seritinga": {"lat": -21.9134, "lng": -44.518},
+      "serra azul de minas": {"lat": -18.3602, "lng": -43.1675},
+      "serra da saudade": {"lat": -19.4447, "lng": -45.795},
+      "serra do salitre": {"lat": -19.1083, "lng": -46.6961},
+      "serra dos aimores": {"lat": -17.7872, "lng": -40.2453},
+      "serrania": {"lat": -21.5441, "lng": -46.0417},
+      "serranopolis de minas": {"lat": -15.8176, "lng": -42.8732},
+      "serranos": {"lat": -21.8857, "lng": -44.5125},
+      "serro": {"lat": -18.5991, "lng": -43.3744},
+      "sete lagoas": {"lat": -19.4569, "lng": -44.2413},
+      "setubinha": {"lat": -17.6002, "lng": -42.1587},
+      "silveirania": {"lat": -21.1615, "lng": -43.2128},
+      "silvianopolis": {"lat": -22.0274, "lng": -45.8385},
+      "simao pereira": {"lat": -21.964, "lng": -43.3088},
+      "simonesia": {"lat": -20.1341, "lng": -42.0091},
+      "sobralia": {"lat": -19.2345, "lng": -42.0998},
+      "soledade de minas": {"lat": -22.0554, "lng": -45.0464},
+      "tabuleiro": {"lat": -21.3632, "lng": -43.2381},
+      "taiobeiras": {"lat": -15.8106, "lng": -42.2259},
+      "taparuba": {"lat": -19.7621, "lng": -41.608},
+      "tapira": {"lat": -19.9166, "lng": -46.8264},
+      "tapirai": {"lat": -19.8936, "lng": -46.0221},
+      "taquaracu de minas": {"lat": -19.6652, "lng": -43.6922},
+      "tarumirim": {"lat": -19.2835, "lng": -42.0097},
+      "teixeiras": {"lat": -20.6561, "lng": -42.8564},
+      "teofilo otoni": {"lat": -17.8595, "lng": -41.5087},
+      "timoteo": {"lat": -19.5811, "lng": -42.6471},
+      "tiradentes": {"lat": -21.1102, "lng": -44.1744},
+      "tiros": {"lat": -19.0037, "lng": -45.9626},
+      "tocantins": {"lat": -21.1774, "lng": -43.0127},
+      "tocos do moji": {"lat": -22.3698, "lng": -46.0971},
+      "toledo": {"lat": -22.7421, "lng": -46.3728},
+      "tombos": {"lat": -20.9086, "lng": -42.0228},
+      "tres coracoes": {"lat": -21.6921, "lng": -45.2511},
+      "tres marias": {"lat": -18.2048, "lng": -45.2473},
+      "tres pontas": {"lat": -21.3694, "lng": -45.5109},
+      "tumiritinga": {"lat": -18.9844, "lng": -41.6527},
+      "tupaciguara": {"lat": -18.5866, "lng": -48.6985},
+      "turmalina": {"lat": -17.2828, "lng": -42.7285},
+      "turvolandia": {"lat": -21.8733, "lng": -45.7859},
+      "uba": {"lat": -21.1204, "lng": -42.9359},
+      "ubai": {"lat": -16.2885, "lng": -44.7783},
+      "ubaporanga": {"lat": -19.6351, "lng": -42.1059},
+      "uberaba": {"lat": -19.7472, "lng": -47.9381},
+      "uberlandia": {"lat": -18.9141, "lng": -48.2749},
+      "umburatiba": {"lat": -17.2548, "lng": -40.5779},
+      "unai": {"lat": -16.3592, "lng": -46.9022},
+      "uniao de minas": {"lat": -19.5299, "lng": -50.338},
+      "uruana de minas": {"lat": -16.0634, "lng": -46.2443},
+      "urucania": {"lat": -20.3521, "lng": -42.737},
+      "urucuia": {"lat": -16.1244, "lng": -45.7352},
+      "vargem alegre": {"lat": -19.5988, "lng": -42.2949},
+      "vargem bonita": {"lat": -20.3333, "lng": -46.3688},
+      "vargem grande do rio pardo": {"lat": -15.3987, "lng": -42.3085},
+      "varginha": {"lat": -21.5556, "lng": -45.4364},
+      "varjao de minas": {"lat": -18.3741, "lng": -46.0313},
+      "varzea da palma": {"lat": -17.5944, "lng": -44.7226},
+      "varzelandia": {"lat": -15.6992, "lng": -44.0278},
+      "vazante": {"lat": -17.9827, "lng": -46.9088},
+      "verdelandia": {"lat": -15.5845, "lng": -43.6121},
+      "veredinha": {"lat": -17.3974, "lng": -42.7307},
+      "verissimo": {"lat": -19.6657, "lng": -48.3118},
+      "vermelho novo": {"lat": -20.0406, "lng": -42.2688},
+      "vespasiano": {"lat": -19.6883, "lng": -43.9239},
+      "vicosa": {"lat": -20.7559, "lng": -42.8742},
+      "vieiras": {"lat": -20.867, "lng": -42.2401},
+      "virgem da lapa": {"lat": -16.807, "lng": -42.3431},
+      "virginia": {"lat": -22.3264, "lng": -45.0965},
+      "virginopolis": {"lat": -18.8154, "lng": -42.7015},
+      "virgolandia": {"lat": -18.4738, "lng": -42.3067},
+      "visconde do rio branco": {"lat": -21.0127, "lng": -42.8361},
+      "volta grande": {"lat": -21.7671, "lng": -42.5375},
+      "wenceslau braz": {"lat": -22.5368, "lng": -45.3626},
+    };
+
+
 
     const baseLocations = [
 
@@ -395,7 +1246,11 @@ html_content = r"""<!DOCTYPE html>
 
     let allDrivers = [];
 
-    let availableSuggestions = [...baseLocations];
+    // Municípios incorporados ao HTML: sugestões disponíveis mesmo sem a API do IBGE.
+    const cityNamesFromCoords = Object.keys(mgCityCoords).map(name =>
+      name.replace(/\b\p{L}/gu, char => char.toLocaleUpperCase('pt-BR'))
+    );
+    let availableSuggestions = [...new Set([...baseLocations, ...cityNamesFromCoords])];
 
     let userLocation = null;
 
@@ -421,7 +1276,7 @@ html_content = r"""<!DOCTYPE html>
 
     function calculateDistanceKm(lat1, lon1, lat2, lon2) {
 
-      if (![lat1, lon1, lat2, lon2].every(Number.isFinite) || !validCoords(lat1, lon1) || !validCoords(lat2, lon2)) return null;
+      if (isNaN(lat1) || isNaN(lon1) || isNaN(lat2) || isNaN(lon2)) return null;
 
       const R = 6371;
 
@@ -446,49 +1301,42 @@ html_content = r"""<!DOCTYPE html>
 
 
     async function loadAllMinasGeraisCities() {
-      const urls = [
-        'https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/master/csv/municipios.csv',
-        'https://cdn.jsdelivr.net/gh/kelvins/Municipios-Brasileiros@master/csv/municipios.csv'
-      ];
-      let lastError;
-      for (const url of urls) {
-        try {
-          const response = await fetchWithTimeout(url, 18000);
-          if (!response.ok) throw new Error('HTTP ' + response.status);
-          const csv = await response.text();
-          const parsed = Papa.parse(csv, {header:true,skipEmptyLines:true});
-          let count = 0;
-          const names = new Set(baseLocations);
-          for (const row of parsed.data) {
-            if (String(row.codigo_uf).trim() !== '31') continue;
-            const lat = Number(String(row.latitude).replace(',','.'));
-            const lng = Number(String(row.longitude).replace(',','.'));
-            if (!row.nome || !validCoords(lat,lng)) continue;
-            mgCityCoords[normalizeText(row.nome)] = {lat,lng};
-            names.add(row.nome);
-            count++;
-          }
-          if (count !== 853) throw new Error('Base incompleta: ' + count + ' municípios');
-          availableSuggestions = Array.from(names).sort((a,b)=>a.localeCompare(b,'pt-BR'));
-          citiesLoaded = true;
-          const typed = document.getElementById('search-input').value.trim();
-          if (typed && mgCityCoords[normalizeText(typed)]) resolveCity(typed);
-          return;
-        } catch (err) { lastError = err; console.warn('Fonte de coordenadas indisponível:',url,err); }
+
+      const set = new Set(availableSuggestions);
+
+      try {
+
+        const response = await fetch("https://servicodados.ibge.gov.br/api/v1/localidades/estados/MG/municipios");
+
+        if (response.ok) {
+
+          const municipalities = await response.json();
+
+          municipalities.forEach(m => {
+
+            if (m && m.nome) set.add(m.nome.trim());
+
+          });
+
+        }
+
+      } catch (err) {
+
+        console.warn("Aviso ao carregar municípios do IBGE:", err);
+
       }
-      console.error('Falha ao carregar coordenadas dos municípios', lastError);
-      setGpsStatus('Não foi possível carregar a base de municípios. Verifique a internet e atualize a página.', 'error');
+
+      availableSuggestions = Array.from(new Map(Array.from(set).map(name => [normalizeText(name), name])).values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
     }
 
-    function validCoords(lat,lng) {
-      return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -35 && lat <= 6 && lng >= -75 && lng <= -30;
-    }
+
 
     function loadDriversData() {
 
       if (!GOOGLE_SHEET_CSV_URL) {
 
-        allDrivers = [];
+        allDrivers = fallbackDrivers;
 
         mergeDriverRegionsToSuggestions();
 
@@ -538,7 +1386,7 @@ html_content = r"""<!DOCTYPE html>
 
           } else {
 
-            allDrivers = [];
+            allDrivers = fallbackDrivers;
 
           }
 
@@ -552,7 +1400,7 @@ html_content = r"""<!DOCTYPE html>
 
           console.error("Erro ao carregar planilha:", err);
 
-          allDrivers = [];
+          allDrivers = fallbackDrivers;
 
           mergeDriverRegionsToSuggestions();
 
@@ -574,7 +1422,7 @@ html_content = r"""<!DOCTYPE html>
 
         if (d.region) {
 
-          const parts = d.region.split(/[,/]|\be\b/i);
+          const parts = d.region.split(/[,**\/**]|\be\b/i);
 
           parts.forEach(p => {
 
@@ -588,7 +1436,7 @@ html_content = r"""<!DOCTYPE html>
 
       });
 
-      availableSuggestions = Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
+      availableSuggestions = Array.from(new Map(Array.from(set).map(name => [normalizeText(name), name])).values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
 
     }
 
@@ -597,63 +1445,196 @@ html_content = r"""<!DOCTYPE html>
 
 
     function handleSearchInput() {
+
       hideGpsStatus();
+
       const input = document.getElementById('search-input');
-      const q = normalizeText(input.value);
-      document.getElementById('clear-search-btn').classList.toggle('hidden', !q);
-      userLocation = null;
-      const matches = q ? availableSuggestions.filter(name => normalizeText(name).includes(q)).slice(0, 15) : [];
-      const suggestions = document.getElementById('suggestions-list');
-      suggestions.replaceChildren();
-      for (const name of matches) {
-        const li = document.createElement('li');
-        li.className = 'px-4 py-2.5 text-sm text-gray-200 hover:bg-amber-400 hover:text-black cursor-pointer';
-        li.textContent = name;
-        li.addEventListener('click', () => selectSuggestion(name));
-        suggestions.appendChild(li);
-      }
-      suggestions.classList.toggle('hidden', !matches.length);
-      const point = mgCityCoords[q];
-      if (point) userLocation = { ...point, source: 'typed-city', city: input.value };
-      filterDrivers();
-    }
 
-    async function selectSuggestion(name) {
-      document.getElementById('search-input').value = name;
-      document.getElementById('suggestions-list').classList.add('hidden');
-      document.getElementById('clear-search-btn').classList.remove('hidden');
-      await resolveCity(name);
-    }
+      const clearBtn = document.getElementById('clear-search-btn');
 
-    async function resolveCity(name) {
-      const normalized = normalizeText(name);
-      let point = mgCityCoords[normalized];
-      if (!point && !citiesLoaded) {
-        setGpsStatus('Carregando coordenadas dos municípios de Minas Gerais...', 'info');
-        await cityLoadPromise;
-        point = mgCityCoords[normalized];
-      }
-      if (!point) {
-        userLocation = null;
-        setGpsStatus('Não encontramos coordenadas para essa cidade. Selecione um município de MG na lista.', 'warning');
+      const suggestionsEl = document.getElementById('suggestions-list');
+
+      const rawValue = input.value;
+
+      const query = normalizeText(rawValue);
+
+
+
+      if (rawValue.length > 0) {
+
+        clearBtn.classList.remove('hidden');
+
       } else {
-        userLocation = { ...point, source: 'selected-city', city: name };
-        setGpsStatus('Distâncias estimadas em linha reta a partir do centro do município.', 'success');
+
+        clearBtn.classList.add('hidden');
+
+        userLocation = null;
+
       }
+
+
+
+      // Ao editar manualmente a cidade, não reutilizar coordenadas GPS de outra busca.
+
+      if (userLocation && (userLocation.source === 'gps' || userLocation.source === 'ip')) {
+
+        userLocation = null;
+
+      }
+
+
+
+      // Se o que foi digitado corresponde a uma cidade com coordenadas conhecidas, define o ponto central
+
+      if (mgCityCoords[query]) {
+
+        userLocation = {
+
+          lat: mgCityCoords[query].lat,
+
+          lng: mgCityCoords[query].lng,
+
+          source: 'typed-city',
+
+          city: rawValue
+
+        };
+
+      } else {
+
+        // Se limpou ou mudou para algo sem coordenada exata prévia, mantém se for GPS, senão anula
+
+        if (userLocation && userLocation.source === 'typed-city') {
+
+          userLocation = null;
+
+        }
+
+      }
+
+
+
+      if (query.length >= 1) {
+
+        const startsWithMatches = [];
+
+        const containsMatches = [];
+
+
+
+        for (const loc of availableSuggestions) {
+
+          const normLoc = normalizeText(loc);
+
+          if (normLoc.startsWith(query)) {
+
+            startsWithMatches.push(loc);
+
+          } else if (normLoc.includes(query)) {
+
+            containsMatches.push(loc);
+
+          }
+
+        }
+
+
+
+        const matches = [...startsWithMatches, ...containsMatches].slice(0, 15);
+
+
+
+        if (matches.length > 0) {
+
+          suggestionsEl.innerHTML = matches.map(loc => {
+
+            const safeLoc = loc.replace(/'/g, "\\'");
+
+            return `
+
+              <li onclick="selectSuggestion('${safeLoc}')" 
+
+                  class="px-4 py-2.5 text-sm text-gray-200 hover:bg-amber-400 hover:text-black cursor-pointer flex items-center gap-2 transition">
+
+                <i data-lucide="map-pin" class="w-4 h-4 opacity-70 shrink-0"></i>
+
+                <span>${loc}</span>
+
+              </li>
+
+            `;
+
+          }).join('');
+
+          suggestionsEl.classList.remove('hidden');
+
+          if (window.lucide) lucide.createIcons();
+
+        } else {
+
+          suggestionsEl.classList.add('hidden');
+
+        }
+
+      } else {
+
+        suggestionsEl.classList.add('hidden');
+
+      }
+
+
+
       filterDrivers();
+
     }
 
-    document.getElementById('search-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        document.getElementById('suggestions-list').classList.add('hidden');
-        resolveCity(e.target.value.trim());
+
+
+    function selectSuggestion(locationName) {
+
+      hideGpsStatus();
+
+      const input = document.getElementById('search-input');
+
+      input.value = locationName;
+
+      document.getElementById('suggestions-list').classList.add('hidden');
+
+      document.getElementById('clear-search-btn').classList.remove('hidden');
+
+
+
+      const normName = normalizeText(locationName);
+
+      if (mgCityCoords[normName]) {
+
+        userLocation = {
+
+          lat: mgCityCoords[normName].lat,
+
+          lng: mgCityCoords[normName].lng,
+
+          source: 'selected-city',
+
+          city: locationName
+
+        };
+
+      } else {
+
+        userLocation = null;
+
       }
-    });
-    document.getElementById('search-input').addEventListener('blur', e => {
-      const name = e.target.value.trim();
-      if (name && !userLocation) setTimeout(() => resolveCity(name), 180);
-    });
+
+
+
+      filterDrivers();
+
+    }
+
+
+
+
 
     function clearSearch() {
 
@@ -807,7 +1788,7 @@ html_content = r"""<!DOCTYPE html>
 
         const cleanPhone = d.phone.replace(/\D/g, '');
 
-        const distText = (Number.isFinite(d.distanceKm)) ? ` (distância estimada de ${d.distanceKm.toFixed(1)} km)` : '';
+        const distText = (typeof d.distanceKm === 'number') ? ` (distância estimada de ${d.distanceKm.toFixed(1)} km)` : '';
 
         const message = encodeURIComponent(`Olá ${d.name}, vi seu contato no site Reboque 24h${distText} e preciso de socorro veicular!`);
 
@@ -863,7 +1844,7 @@ html_content = r"""<!DOCTYPE html>
 
 
 
-                ${Number.isFinite(d.distanceKm) ? `
+                ${typeof d.distanceKm === 'number' ? `
 
                   <span class="inline-flex items-center gap-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 text-xs px-2.5 py-0.5 rounded-full font-semibold">
 
@@ -1329,7 +2310,7 @@ html_content = r"""<!DOCTYPE html>
 
       if (window.lucide) lucide.createIcons();
 
-      cityLoadPromise = loadAllMinasGeraisCities();
+      loadAllMinasGeraisCities();
 
       loadDriversData();
 
@@ -1340,8 +2321,4 @@ html_content = r"""<!DOCTYPE html>
 </body>
 
 </html>
-"""
 
-output_path = Path(__file__).resolve().parent / "index.html"
-output_path.write_text(html_content, encoding="utf-8")
-print(f"Arquivo HTML gerado com sucesso: {output_path}")
